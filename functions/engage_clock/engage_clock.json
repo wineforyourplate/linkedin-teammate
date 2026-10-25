@@ -1,0 +1,16 @@
+{
+  "name": "engage_clock",
+  "description": "Every 15 minutes: post the comments they approved (one queue), start one of their scheduled engage runs when it's due, or do nothing. Marks a run before saying yes, so it never starts twice.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {"resource_type": "datastore_table", "resource_name": "profile", "permission_ids": ["datastore.table.read", "datastore.record.read"]},
+      {"resource_type": "datastore_table", "resource_name": "skills", "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"]},
+      {"resource_type": "datastore_table", "resource_name": "engagements", "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"]}
+    ]
+  }
+}

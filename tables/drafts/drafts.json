@@ -1,0 +1,140 @@
+{
+  "name": "drafts",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "title",
+      "type": "TEXT",
+      "max_length": 200
+    },
+    {
+      "name": "body",
+      "type": "TEXT",
+      "max_length": 3500
+    },
+    {
+      "name": "format",
+      "type": "ENUM",
+      "options": [
+        "text",
+        "image",
+        "carousel",
+        "poll",
+        "link",
+        "video"
+      ],
+      "default": "text"
+    },
+    {
+      "name": "media",
+      "type": "JSON"
+    },
+    {
+      "name": "pdf_path",
+      "type": "TEXT",
+      "max_length": 500
+    },
+    {
+      "name": "poll",
+      "type": "JSON"
+    },
+    {
+      "name": "link_url",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "idea",
+        "drafting",
+        "ready",
+        "approved",
+        "publishing",
+        "published",
+        "failed",
+        "killed"
+      ],
+      "default": "idea"
+    },
+    {
+      "name": "why_now",
+      "type": "TEXT",
+      "max_length": 800
+    },
+    {
+      "name": "source",
+      "type": "TEXT",
+      "max_length": 300
+    },
+    {
+      "name": "first_draft",
+      "type": "TEXT",
+      "max_length": 3500
+    },
+    {
+      "name": "scheduled_for",
+      "type": "DATETIME"
+    },
+    {
+      "name": "approved_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "published_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "post_url",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "via",
+      "type": "ENUM",
+      "options": [
+        "browser",
+        "api"
+      ]
+    },
+    {
+      "name": "error",
+      "type": "TEXT",
+      "max_length": 2000
+    },
+    {
+      "name": "attempts",
+      "type": "INTEGER",
+      "default": 0
+    },
+    {
+      "name": "reactions",
+      "type": "INTEGER"
+    },
+    {
+      "name": "comments",
+      "type": "INTEGER"
+    },
+    {
+      "name": "impressions",
+      "type": "INTEGER"
+    },
+    {
+      "name": "versions",
+      "type": "JSON"
+    },
+    {
+      "name": "results",
+      "type": "JSON"
+    },
+    {
+      "name": "led_to_conversation",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  ],
+  "config": {}
+}

@@ -1,0 +1,9 @@
+{ "name": "steal-this-employee", "title": "Steal this employee", "description": "The playbook to put together your own version of this teammate. The gift is the repo.",
+  "slides": [
+    {"layout": "cover", "purpose": "Steal our whole <teammate>. Here's how to put it together"},
+    {"layout": "system-map", "purpose": "What goes in, the teammate, what comes out"},
+    {"layout": "steps", "purpose": "The 3-4 steps to put it together"},
+    {"layout": "screenshot", "purpose": "What you see once it's running"},
+    {"layout": "point", "purpose": "The part people get wrong"},
+    {"layout": "cta", "purpose": "Comment a keyword and get the whole repo"}
+  ] }

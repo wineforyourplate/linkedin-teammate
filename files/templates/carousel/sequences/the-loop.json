@@ -1,0 +1,11 @@
+{ "name": "the-loop", "title": "The loop", "description": "One real item, end to end: where it started, what the teammate did, what a person still decided.",
+  "slides": [
+    {"layout": "cover", "purpose": "The outcome, as news, starting where the person starts"},
+    {"layout": "thread", "purpose": "The real moment it began (a Slack thread, an email, a request)"},
+    {"layout": "point", "purpose": "What the teammate did first"},
+    {"layout": "screenshot", "purpose": "The real screen where that shows"},
+    {"layout": "before-after", "purpose": "The old way against this way"},
+    {"layout": "stat", "purpose": "The receipt: one real number with its denominator"},
+    {"layout": "honest", "purpose": "What a person still decides"},
+    {"layout": "cta", "purpose": "One action"}
+  ] }

@@ -1,0 +1,103 @@
+{
+  "name": "nudge",
+  "description": "The daily nudge: a cheap check every half hour; at their time on weekdays, when something is waiting, the teammate sends one short message with the best draft inside.",
+  "start": {
+    "type": "SCHEDULED",
+    "config": {
+      "schedule_type": "CRON"
+    }
+  },
+  "nodes": [
+    {
+      "id": "clock",
+      "type": "FUNCTION",
+      "label": "Is it time?",
+      "config": {
+        "function_name": "nudge_clock",
+        "input_mapping": {}
+      }
+    },
+    {
+      "id": "route",
+      "type": "DECISION",
+      "label": "Nudge or not",
+      "config": {
+        "rules": [
+          {
+            "condition": "clock.action == 'nudge'",
+            "next_node_id": "send"
+          }
+        ]
+      }
+    },
+    {
+      "id": "send",
+      "type": "AGENT",
+      "label": "Write and send the nudge",
+      "config": {
+        "agent_name": "teammate",
+        "input_mapping": {
+          "task": {
+            "type": "literal",
+            "value": "nudge"
+          },
+          "posts": {
+            "type": "expression",
+            "value": "clock.posts"
+          },
+          "replies": {
+            "type": "expression",
+            "value": "clock.replies"
+          },
+          "people": {
+            "type": "expression",
+            "value": "clock.people"
+          },
+          "draft_id": {
+            "type": "expression",
+            "value": "clock.draft_id",
+            "optional": true
+          },
+          "action": {
+            "type": "expression",
+            "value": "clock.action"
+          }
+        }
+      }
+    },
+    {
+      "id": "sent",
+      "type": "END",
+      "label": "Sent",
+      "config": {}
+    },
+    {
+      "id": "quiet",
+      "type": "END",
+      "label": "Not now",
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "source": "clock",
+      "target": "route"
+    },
+    {
+      "id": "e1",
+      "source": "route",
+      "target": "quiet"
+    },
+    {
+      "id": "e2",
+      "source": "route",
+      "target": "send"
+    },
+    {
+      "id": "e3",
+      "source": "send",
+      "target": "sent"
+    }
+  ]
+}

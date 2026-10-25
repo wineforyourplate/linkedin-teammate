@@ -1,0 +1,31 @@
+{
+  "name": "setup_me",
+  "description": "Make sure the calling person has a profile row and one row per skill. Safe to call on every app load.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "skills",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      }
+    ]
+  }
+}

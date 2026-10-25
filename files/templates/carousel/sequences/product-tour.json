@@ -1,0 +1,10 @@
+{ "name": "product-tour", "title": "Product tour", "description": "The app the way a person meets it in their day: where they start, the main screen at work, the next move, where they decide, what it connects to.",
+  "slides": [
+    {"layout": "cover", "purpose": "What it does for you, in your words"},
+    {"layout": "screenshot", "purpose": "Where you start, and what's already done for you"},
+    {"layout": "screenshot", "purpose": "The main screen at work: one thing to notice"},
+    {"layout": "steps", "purpose": "The next moves, in the order they happen"},
+    {"layout": "point", "purpose": "Where a person decides"},
+    {"layout": "system-map", "purpose": "What it works with and what it hands back"},
+    {"layout": "cta", "purpose": "One action: the tour, the app, or add it to your team"}
+  ] }

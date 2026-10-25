@@ -1,0 +1,21 @@
+{
+  "visibility": "POD",
+  "is_active": true,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "name": "on-topic-added",
+  "schedule_type": "DATASTORE",
+  "agent_name": "teammate",
+  "workflow_name": null,
+  "instruction": "[research] The person just added this topic (the row is in this message). Research it now as the research-topic skill says, then suggest up to 2 post ideas from what you found. Nobody is watching: never ask anything.",
+  "config": {
+    "table_name": "topics",
+    "operations": [
+      "INSERT"
+    ],
+    "bulk_writes": "each",
+    "import_writes": "each"
+  }
+}

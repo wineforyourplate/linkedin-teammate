@@ -1,0 +1,332 @@
+{
+  "name": "profile",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "display_name",
+      "type": "TEXT",
+      "max_length": 120
+    },
+    {
+      "name": "first_name",
+      "type": "TEXT",
+      "max_length": 60
+    },
+    {
+      "name": "linkedin_url",
+      "type": "TEXT",
+      "max_length": 300
+    },
+    {
+      "name": "linkedin_name",
+      "type": "TEXT",
+      "max_length": 160
+    },
+    {
+      "name": "linkedin_urn",
+      "type": "TEXT",
+      "max_length": 120
+    },
+    {
+      "name": "headline",
+      "type": "TEXT",
+      "max_length": 400
+    },
+    {
+      "name": "photo_url",
+      "type": "TEXT",
+      "max_length": 1000
+    },
+    {
+      "name": "location",
+      "type": "TEXT",
+      "max_length": 160
+    },
+    {
+      "name": "profile_confirmed",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "role",
+      "type": "TEXT",
+      "max_length": 200
+    },
+    {
+      "name": "company_name",
+      "type": "TEXT",
+      "max_length": 200
+    },
+    {
+      "name": "website",
+      "type": "TEXT",
+      "max_length": 300
+    },
+    {
+      "name": "goal",
+      "type": "ENUM",
+      "options": [
+        "leads",
+        "hiring",
+        "credibility",
+        "audience",
+        "investors"
+      ]
+    },
+    {
+      "name": "why_now",
+      "type": "TEXT",
+      "max_length": 1000
+    },
+    {
+      "name": "posting_habit",
+      "type": "ENUM",
+      "options": [
+        "never",
+        "rarely",
+        "monthly",
+        "weekly",
+        "daily"
+      ]
+    },
+    {
+      "name": "minutes_per_day",
+      "type": "INTEGER",
+      "default": 10
+    },
+    {
+      "name": "posts_per_week",
+      "type": "INTEGER",
+      "default": 2
+    },
+    {
+      "name": "posting_days",
+      "type": "JSON"
+    },
+    {
+      "name": "posting_time",
+      "type": "TEXT",
+      "max_length": 5,
+      "default": "08:30"
+    },
+    {
+      "name": "timezone",
+      "type": "TEXT",
+      "max_length": 60,
+      "default": "Asia/Kolkata"
+    },
+    {
+      "name": "working_hours",
+      "type": "TEXT",
+      "max_length": 20,
+      "default": "09:00-18:00"
+    },
+    {
+      "name": "onboarding_step",
+      "type": "ENUM",
+      "options": [
+        "hello",
+        "profile",
+        "goals",
+        "tone",
+        "voice",
+        "worries",
+        "rhythm",
+        "deal",
+        "browser",
+        "learned",
+        "plan",
+        "first",
+        "done"
+      ],
+      "default": "hello"
+    },
+    {
+      "name": "browser_status",
+      "type": "ENUM",
+      "options": [
+        "unknown",
+        "signed_in",
+        "signed_out",
+        "checkpoint"
+      ],
+      "default": "unknown"
+    },
+    {
+      "name": "browser_checked_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "health",
+      "type": "JSON",
+      "description": "What only the person can fix, written by health_check: {linkedin: {state: ok|reconnect|missing|error|unknown|unused, since, checked_at, called_at, detail}, browser: {state: ok|signed_out|checkpoint|unused, since}, told: {problem: when they were told}}."
+    },
+    {
+      "name": "learning_status",
+      "type": "ENUM",
+      "options": [
+        "idle",
+        "running",
+        "done",
+        "failed"
+      ],
+      "default": "idle"
+    },
+    {
+      "name": "learning_summary",
+      "type": "TEXT",
+      "max_length": 4000
+    },
+    {
+      "name": "linkedin_api",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "voice_confidence",
+      "type": "INTEGER",
+      "default": 0
+    },
+    {
+      "name": "weekly_review",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    {
+      "name": "goals",
+      "type": "JSON"
+    },
+    {
+      "name": "worries",
+      "type": "JSON"
+    },
+    {
+      "name": "meeting_time",
+      "type": "TEXT",
+      "max_length": 80
+    },
+    {
+      "name": "brief_channel",
+      "type": "TEXT",
+      "max_length": 40
+    },
+    {
+      "name": "agreed_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "first_post_choice",
+      "type": "TEXT",
+      "max_length": 300
+    },
+    {
+      "max_length": 1000,
+      "name": "goal_note",
+      "type": "TEXT",
+      "description": "Their own words when no goal chip fits (\"Something else\")."
+    },
+    {
+      "name": "voice_mode",
+      "type": "ENUM",
+      "options": [
+        "mine",
+        "found"
+      ],
+      "description": "mine: learn their voice from their own posts. found: they asked the teammate to propose voices from strong posts in their field."
+    },
+    {
+      "name": "skipped",
+      "type": "JSON",
+      "description": "Onboarding questions they skipped (step keys). Today asks them later, one at a time, and removes each once answered."
+    },
+    {
+      "name": "tone",
+      "type": "ENUM",
+      "options": [
+        "polite",
+        "candid",
+        "roast"
+      ],
+      "description": "How blunt the teammate is about their profile, drafts and ideas."
+    },
+    {
+      "name": "voice_import",
+      "type": "ENUM",
+      "options": [
+        "todo",
+        "reading",
+        "done"
+      ],
+      "description": "Write like me: todo until they import their posts (browser or upload); a clean default voice until then."
+    },
+    {
+      "name": "brand",
+      "type": "JSON",
+      "description": "Brand kit for carousels and images: logo, wordmark, colours, fonts, handle, headshot, CTA, slide style."
+    },
+    {
+      "name": "last_seen_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "nudged_on",
+      "type": "TEXT",
+      "max_length": 10
+    },
+    {
+      "name": "nudge_off",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "nudge_paused_until",
+      "type": "DATETIME"
+    },
+    {
+      "name": "onboarding_screen",
+      "type": "TEXT",
+      "max_length": 20,
+      "description": "Where they are in the onboarding (profile, goals, dest, deal, world, signin, reveal, stand, first, week). onboarding_step stays the done gate."
+    },
+    {
+      "name": "kpi_order",
+      "type": "JSON",
+      "description": "What to count first, in order, from their goals: profile_visits, link_clicks, impressions, followers, comments, recruiter_messages, investor_messages."
+    },
+    {
+      "name": "destination",
+      "type": "JSON",
+      "description": "Where people go next: {kind: product|call|work|hiring|list|none, link, detail, guess}. Sets how posts end. guess: true while it's the teammate's guess from their website."
+    },
+    {
+      "name": "stats",
+      "type": "JSON",
+      "description": "Where they stand: {followers, profile_views_week, impressions_week, best: {title, numbers, why, url}, fixes: [two lines], read_at, from}. Written by learn-about-you."
+    },
+    {
+      "name": "news_sources",
+      "type": "JSON",
+      "description": "Where news in their field breaks first (sites, newsletters, communities), as names. Feeds trends."
+    },
+    {
+      "name": "world_status",
+      "type": "ENUM",
+      "options": [
+        "idle",
+        "mapping",
+        "done",
+        "failed"
+      ],
+      "default": "idle",
+      "description": "The world map: mapping while the first map runs."
+    },
+    {
+      "name": "world_refreshed_at",
+      "type": "DATETIME",
+      "description": "The last full map or weekly refresh of their world."
+    }
+  ],
+  "config": {}
+}

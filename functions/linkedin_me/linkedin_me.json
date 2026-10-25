@@ -1,0 +1,20 @@
+{
+  "name": "linkedin_me",
+  "description": "Read the person's own LinkedIn identity (name, headline, photo, profile link, member id) through their LinkedIn connection, in about two seconds. Returns connected: false when they haven't connected LinkedIn.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "connector",
+        "resource_name": "linkedin",
+        "permission_ids": [
+          "connector.use"
+        ]
+      }
+    ]
+  }
+}

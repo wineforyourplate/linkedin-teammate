@@ -1,0 +1,110 @@
+{
+  "name": "world",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "name",
+      "type": "TEXT",
+      "max_length": 200,
+      "required": true
+    },
+    {
+      "name": "url",
+      "type": "TEXT",
+      "max_length": 500,
+      "description": "Their LinkedIn profile or company page. Empty for a name they typed until the teammate finds it."
+    },
+    {
+      "name": "photo",
+      "type": "TEXT",
+      "max_length": 1000
+    },
+    {
+      "name": "headline",
+      "type": "TEXT",
+      "max_length": 400
+    },
+    {
+      "name": "bucket",
+      "type": "ENUM",
+      "options": [
+        "voices",
+        "deciders",
+        "news",
+        "builders",
+        "peers"
+      ],
+      "default": "voices",
+      "description": "voices: big reach in their topics. deciders: buy, hire or back. news: write about it first. builders: shipping in their space. peers: doing what they do."
+    },
+    {
+      "name": "cadence",
+      "type": "ENUM",
+      "options": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "description": "How often they post, from their last 5 posts."
+    },
+    {
+      "name": "followers",
+      "type": "INTEGER"
+    },
+    {
+      "name": "why",
+      "type": "TEXT",
+      "max_length": 400,
+      "description": "One line: why they're in this world, or why they're suggested."
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "watching",
+        "suggested",
+        "removed"
+      ],
+      "default": "suggested"
+    },
+    {
+      "name": "source",
+      "type": "TEXT",
+      "max_length": 40,
+      "description": "you (named or added by the person), map (the first map), replied (replied to them or engaged twice), repeat (turned up in 2+ runs), linkedin (LinkedIn's \"More profiles for you\"), import (moved from the old list)."
+    },
+    {
+      "name": "removed_reason",
+      "type": "TEXT",
+      "max_length": 40,
+      "description": "inactive (no post in 30 days), you (they removed them), not_now (they passed on a suggestion)."
+    },
+    {
+      "name": "last_post_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "last_seen_at",
+      "type": "DATETIME",
+      "description": "The last finding run that came across them."
+    },
+    {
+      "name": "seen_count",
+      "type": "INTEGER",
+      "default": 0,
+      "description": "How many finding runs came across them (posts with replies, or LinkedIn's suggestions next to watched people)."
+    },
+    {
+      "name": "added_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "decided_at",
+      "type": "DATETIME",
+      "description": "When the person added, removed or passed on them."
+    }
+  ],
+  "config": {}
+}

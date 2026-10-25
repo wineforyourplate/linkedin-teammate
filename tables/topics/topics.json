@@ -1,0 +1,72 @@
+{
+  "name": "topics",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "name",
+      "type": "TEXT",
+      "max_length": 120,
+      "required": true
+    },
+    {
+      "name": "why",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "source",
+      "type": "ENUM",
+      "options": [
+        "company",
+        "profile",
+        "posts",
+        "you",
+        "research"
+      ],
+      "default": "you"
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "active",
+        "paused"
+      ],
+      "default": "active"
+    },
+    {
+      "name": "research_status",
+      "type": "ENUM",
+      "options": [
+        "idle",
+        "running",
+        "done",
+        "failed"
+      ],
+      "default": "idle"
+    },
+    {
+      "name": "researched_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "summary",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "signals",
+      "type": "JSON"
+    },
+    {
+      "name": "angles",
+      "type": "JSON"
+    },
+    {
+      "name": "position",
+      "type": "INTEGER"
+    }
+  ]
+}

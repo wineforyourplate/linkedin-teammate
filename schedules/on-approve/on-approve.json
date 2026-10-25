@@ -1,0 +1,27 @@
+{
+  "name": "on-approve",
+  "visibility": "POD",
+  "is_active": true,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "schedule_type": "DATASTORE",
+  "workflow_name": "publish",
+  "agent_name": null,
+  "instruction": null,
+  "config": {
+    "table_name": "drafts",
+    "operations": [
+      "INSERT",
+      "UPDATE"
+    ],
+    "when": {
+      "status": {
+        "to": "approved"
+      }
+    },
+    "bulk_writes": "each",
+    "import_writes": "each"
+  }
+}

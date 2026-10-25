@@ -1,0 +1,26 @@
+{
+  "name": "on-confirm",
+  "visibility": "POD",
+  "is_active": true,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "schedule_type": "DATASTORE",
+  "agent_name": "teammate",
+  "workflow_name": null,
+  "instruction": "[learn] The person just confirmed their LinkedIn profile (the row is in this message). Learn about them and their company in the background, exactly as the learn-about-you skill says, narrating each step as an activity row. Nobody is watching this run: never ask, only message them if something needs them.",
+  "config": {
+    "table_name": "profile",
+    "operations": [
+      "UPDATE"
+    ],
+    "when": {
+      "profile_confirmed": {
+        "to": true
+      }
+    },
+    "bulk_writes": "each",
+    "import_writes": "each"
+  }
+}

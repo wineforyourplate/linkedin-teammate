@@ -1,0 +1,62 @@
+{
+  "name": "activity",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "skill",
+      "type": "TEXT",
+      "max_length": 40,
+      "required": true
+    },
+    {
+      "name": "action",
+      "type": "ENUM",
+      "options": [
+        "page_load",
+        "view_profile",
+        "like",
+        "comment",
+        "invite",
+        "message",
+        "post",
+        "profile_edit",
+        "accept_invite",
+        "withdraw",
+        "read",
+        "check",
+        "note"
+      ],
+      "required": true
+    },
+    {
+      "name": "target",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "detail",
+      "type": "TEXT",
+      "max_length": 1000
+    },
+    {
+      "name": "result",
+      "type": "ENUM",
+      "options": [
+        "ok",
+        "skipped",
+        "postponed",
+        "failed",
+        "warning"
+      ],
+      "default": "ok"
+    },
+    {
+      "name": "page_loads",
+      "type": "INTEGER",
+      "default": 0
+    }
+  ],
+  "config": {}
+}

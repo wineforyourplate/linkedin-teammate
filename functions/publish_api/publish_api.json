@@ -1,0 +1,47 @@
+{
+  "name": "publish_api",
+  "description": "Publish an approved text, image or link post through LinkedIn's official API when the person connected it. Anything else comes back as use_browser.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "drafts",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "activity",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "connector",
+        "resource_name": "linkedin",
+        "permission_ids": [
+          "connector.use"
+        ]
+      }
+    ]
+  }
+}

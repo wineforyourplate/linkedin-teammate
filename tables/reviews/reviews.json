@@ -1,0 +1,45 @@
+{
+  "name": "reviews",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "week_of",
+      "type": "TEXT",
+      "max_length": 10
+    },
+    {
+      "name": "summary",
+      "type": "TEXT",
+      "max_length": 2000
+    },
+    {
+      "name": "numbers",
+      "type": "JSON"
+    },
+    {
+      "name": "best",
+      "type": "JSON"
+    },
+    {
+      "name": "plan",
+      "type": "JSON"
+    },
+    {
+      "name": "suggestion",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "new",
+        "approved",
+        "dismissed"
+      ],
+      "default": "new"
+    }
+  ]
+}

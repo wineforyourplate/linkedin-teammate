@@ -1,0 +1,25 @@
+# local secrets and CLI bindings: never commit
+.env
+.env.*
+!.env.example
+.lemma.env
+.lemma.*.env
+.lemma.*.env.local
+.lemma/
+# app build output and dependencies
+apps/*/source/node_modules/
+apps/*/source/dist/
+apps/*/source/dist.zip
+apps/*/source/*.tsbuildinfo
+__pycache__/
+*.py[cod]
+# editor, OS and agent scratch
+.DS_Store
+.claude/
+.idea/
+.vscode/
+*.log
+# private data stays outside this repository
+seed/
+private/
+scratchpad/

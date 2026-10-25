@@ -1,0 +1,26 @@
+{
+  "visibility": "POD",
+  "is_active": false,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "name": "on-comment-approve",
+  "schedule_type": "DATASTORE",
+  "agent_name": "teammate",
+  "workflow_name": null,
+  "instruction": "[comment] The person chose \"Post it for me\" on this engagement (the row is in this message). Post exactly its comment_draft on that post in their signed-in browser, as the engage skill's Commenting section says. Nobody is watching: never ask anything.",
+  "config": {
+    "table_name": "engagements",
+    "operations": [
+      "UPDATE"
+    ],
+    "when": {
+      "status": {
+        "to": "approved"
+      }
+    },
+    "bulk_writes": "each",
+    "import_writes": "each"
+  }
+}

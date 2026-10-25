@@ -1,0 +1,88 @@
+{
+  "name": "people",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "name",
+      "type": "TEXT",
+      "max_length": 200,
+      "required": true
+    },
+    {
+      "name": "headline",
+      "type": "TEXT",
+      "max_length": 400
+    },
+    {
+      "name": "company",
+      "type": "TEXT",
+      "max_length": 200
+    },
+    {
+      "name": "profile_url",
+      "type": "TEXT",
+      "max_length": 500
+    },
+    {
+      "name": "reason",
+      "type": "TEXT",
+      "max_length": 800
+    },
+    {
+      "name": "score",
+      "type": "FLOAT"
+    },
+    {
+      "name": "source",
+      "type": "ENUM",
+      "options": [
+        "engaged_with_you",
+        "search",
+        "niche_post",
+        "export",
+        "manual"
+      ],
+      "default": "search"
+    },
+    {
+      "name": "stage",
+      "type": "ENUM",
+      "options": [
+        "found",
+        "approved",
+        "skipped",
+        "invited",
+        "accepted",
+        "messaged",
+        "replied",
+        "withdrawn"
+      ],
+      "default": "found"
+    },
+    {
+      "name": "invite_note",
+      "type": "TEXT",
+      "max_length": 300
+    },
+    {
+      "name": "invited_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "accepted_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "last_message_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "next_step",
+      "type": "TEXT",
+      "max_length": 300
+    }
+  ],
+  "config": {}
+}

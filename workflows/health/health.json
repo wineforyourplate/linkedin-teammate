@@ -1,0 +1,99 @@
+{
+  "name": "health",
+  "description": "Every two hours: is the LinkedIn connection or browser broken? The check writes what it found for the app; when something new broke, the teammate sends one short message saying what stopped and the one tap that fixes it.",
+  "start": {
+    "type": "SCHEDULED",
+    "config": {
+      "schedule_type": "CRON"
+    }
+  },
+  "nodes": [
+    {
+      "id": "check",
+      "type": "FUNCTION",
+      "label": "Anything broken?",
+      "config": {
+        "function_name": "health_check",
+        "input_mapping": {}
+      }
+    },
+    {
+      "id": "route",
+      "type": "DECISION",
+      "label": "Tell them or not",
+      "config": {
+        "rules": [
+          {
+            "condition": "check.action == 'help'",
+            "next_node_id": "tell"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tell",
+      "type": "AGENT",
+      "label": "Ask for help",
+      "config": {
+        "agent_name": "teammate",
+        "input_mapping": {
+          "task": {
+            "type": "literal",
+            "value": "help"
+          },
+          "tell": {
+            "type": "expression",
+            "value": "check.tell"
+          },
+          "linkedin": {
+            "type": "expression",
+            "value": "check.linkedin"
+          },
+          "browser": {
+            "type": "expression",
+            "value": "check.browser"
+          },
+          "next_post_at": {
+            "type": "expression",
+            "value": "check.next_post_at",
+            "optional": true
+          }
+        }
+      }
+    },
+    {
+      "id": "told",
+      "type": "END",
+      "label": "Told",
+      "config": {}
+    },
+    {
+      "id": "fine",
+      "type": "END",
+      "label": "Nothing new",
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "source": "check",
+      "target": "route"
+    },
+    {
+      "id": "e1",
+      "source": "route",
+      "target": "fine"
+    },
+    {
+      "id": "e2",
+      "source": "route",
+      "target": "tell"
+    },
+    {
+      "id": "e3",
+      "source": "tell",
+      "target": "told"
+    }
+  ]
+}

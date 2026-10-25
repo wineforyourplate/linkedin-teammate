@@ -1,0 +1,66 @@
+{
+  "name": "facts",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "section",
+      "type": "ENUM",
+      "options": [
+        "you",
+        "company",
+        "audience",
+        "topics",
+        "voice",
+        "brand",
+        "preferences"
+      ],
+      "required": true
+    },
+    {
+      "name": "label",
+      "type": "TEXT",
+      "max_length": 200,
+      "required": true
+    },
+    {
+      "name": "value",
+      "type": "TEXT",
+      "max_length": 4000
+    },
+    {
+      "name": "kind",
+      "type": "ENUM",
+      "options": [
+        "fact",
+        "question"
+      ],
+      "default": "fact"
+    },
+    {
+      "name": "options",
+      "type": "JSON"
+    },
+    {
+      "name": "source",
+      "type": "TEXT",
+      "max_length": 200
+    },
+    {
+      "name": "confidence",
+      "type": "FLOAT"
+    },
+    {
+      "name": "locked",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    {
+      "name": "position",
+      "type": "INTEGER",
+      "default": 0
+    }
+  ],
+  "config": {}
+}

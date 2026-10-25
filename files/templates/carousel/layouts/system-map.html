@@ -1,0 +1,15 @@
+<section class="slide {{theme}} l-system-map"><div class="glow"></div>
+  {{#kicker}}<p class="kicker">{{kicker}}</p>{{/kicker}}
+  <p class="headline md" style="margin:22px 0 0">{{headline}}</p>
+  <div class="spacer"></div>
+  <div class="map">
+    <div class="col">{{#inputs}}<div class="node">{{.}}</div>{{/inputs}}</div>
+    <div class="arrow"></div>
+    <div class="col"><div class="node core">{{core}}</div></div>
+    <div class="arrow"></div>
+    <div class="col">{{#outputs}}<div class="node">{{.}}</div>{{/outputs}}</div>
+  </div>
+  <div class="spacer"></div>
+  {{#caption}}<p class="caption" style="margin-bottom:28px">{{caption}}</p>{{/caption}}
+  <div class="foot"><span class="brand"><i></i>{{brand}}</span><span>{{page}}/{{total}}</span></div>
+</section>

@@ -1,0 +1,64 @@
+{
+  "name": "recommendations",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "kind",
+      "type": "ENUM",
+      "options": [
+        "skill",
+        "action"
+      ],
+      "default": "skill"
+    },
+    {
+      "name": "skill_key",
+      "type": "TEXT",
+      "max_length": 40
+    },
+    {
+      "name": "title",
+      "type": "TEXT",
+      "max_length": 300,
+      "required": true
+    },
+    {
+      "name": "why",
+      "type": "TEXT",
+      "max_length": 1500
+    },
+    {
+      "name": "plan",
+      "type": "TEXT",
+      "max_length": 1500
+    },
+    {
+      "name": "needs",
+      "type": "TEXT",
+      "max_length": 800
+    },
+    {
+      "name": "limits",
+      "type": "TEXT",
+      "max_length": 800
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "new",
+        "accepted",
+        "later",
+        "dismissed"
+      ],
+      "default": "new"
+    },
+    {
+      "name": "snooze_until",
+      "type": "DATETIME"
+    }
+  ],
+  "config": {}
+}

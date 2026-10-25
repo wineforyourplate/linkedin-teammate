@@ -1,0 +1,174 @@
+{
+ "name": "engage-run",
+ "description": "Engage on the person's clock: every 15 minutes a cheap check posts the batch they approved (one by one), runs the replies job, starts one of their scheduled find runs, or does nothing.",
+ "start": {
+  "type": "SCHEDULED",
+  "config": {
+   "schedule_type": "CRON"
+  }
+ },
+ "nodes": [
+  {
+   "id": "clock",
+   "type": "FUNCTION",
+   "label": "Anything due?",
+   "config": {
+    "function_name": "engage_clock",
+    "input_mapping": {}
+   }
+  },
+  {
+   "id": "route",
+   "type": "DECISION",
+   "label": "Find, post or nothing",
+   "config": {
+    "rules": [
+     {
+      "condition": "clock.action == 'find'",
+      "next_node_id": "find"
+     },
+     {
+      "condition": "clock.action == 'post'",
+      "next_node_id": "post"
+     },
+     {
+      "condition": "clock.action == 'replies'",
+      "next_node_id": "replies"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find",
+   "type": "AGENT",
+   "label": "Read back, find posts, draft a batch",
+   "config": {
+    "agent_name": "teammate",
+    "input_mapping": {
+     "task": {
+      "type": "literal",
+      "value": "engage-find"
+     },
+     "run": {
+      "type": "expression",
+      "value": "clock.run"
+     },
+     "label": {
+      "type": "expression",
+      "value": "clock.label"
+     },
+     "size": {
+      "type": "expression",
+      "value": "clock.size"
+     },
+     "since": {
+      "type": "expression",
+      "value": "clock.since"
+     },
+     "hours": {
+      "type": "expression",
+      "value": "clock.hours"
+     }
+    }
+   }
+  },
+  {
+   "id": "post",
+   "type": "AGENT",
+   "label": "Post the approved batch, one by one",
+   "config": {
+    "agent_name": "teammate",
+    "input_mapping": {
+     "task": {
+      "type": "literal",
+      "value": "engage-post"
+     },
+     "ids": {
+      "type": "expression",
+      "value": "clock.ids"
+     }
+    }
+   }
+  },
+  {
+   "id": "replies",
+   "type": "AGENT",
+   "label": "Read back and draft replies",
+   "config": {
+    "agent_name": "teammate",
+    "input_mapping": {
+     "task": {
+      "type": "literal",
+      "value": "engage-replies"
+     }
+    }
+   }
+  },
+  {
+   "id": "found",
+   "type": "END",
+   "label": "Batch drafted",
+   "config": {}
+  },
+  {
+   "id": "posted",
+   "type": "END",
+   "label": "Batch posted",
+   "config": {}
+  },
+  {
+   "id": "quiet",
+   "type": "END",
+   "label": "Nothing due",
+   "config": {}
+  },
+  {
+   "id": "replied",
+   "type": "END",
+   "label": "Replies drafted",
+   "config": {}
+  }
+ ],
+ "edges": [
+  {
+   "id": "e0",
+   "source": "clock",
+   "target": "route"
+  },
+  {
+   "id": "e1",
+   "source": "route",
+   "target": "quiet"
+  },
+  {
+   "id": "e2",
+   "source": "route",
+   "target": "find"
+  },
+  {
+   "id": "e3",
+   "source": "route",
+   "target": "post"
+  },
+  {
+   "id": "e4",
+   "source": "find",
+   "target": "found"
+  },
+  {
+   "id": "e5",
+   "source": "post",
+   "target": "posted"
+  },
+  {
+   "id": "e6",
+   "source": "route",
+   "target": "replies"
+  },
+  {
+   "id": "e7",
+   "source": "replies",
+   "target": "replied"
+  }
+ ]
+}

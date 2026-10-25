@@ -1,0 +1,17 @@
+{
+  "name": "morning",
+  "visibility": "POD",
+  "is_active": true,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "schedule_type": "TIME",
+  "agent_name": "teammate",
+  "workflow_name": null,
+  "instruction": "[morning] Prepare today: ideas and drafts for Post for me, the one recommendation if one is due, and today's short brief, as your instruction says. Nobody is watching: never ask anything.",
+  "config": {
+    "cron": "30 7 * * *",
+    "timezone": "Asia/Kolkata"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "name": "skills",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "key",
+      "type": "ENUM",
+      "options": [
+        "optimize_profile",
+        "post",
+        "warm_up",
+        "engage",
+        "find_people",
+        "connect",
+        "follow_up"
+      ],
+      "required": true
+    },
+    {
+      "name": "state",
+      "type": "ENUM",
+      "options": [
+        "off",
+        "recommended",
+        "setting_up",
+        "on",
+        "needs_you",
+        "paused"
+      ],
+      "default": "off"
+    },
+    {
+      "name": "status_text",
+      "type": "TEXT",
+      "max_length": 300
+    },
+    {
+      "name": "day",
+      "type": "INTEGER",
+      "default": 0
+    },
+    {
+      "name": "started_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "last_run_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "next_run_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "last_result",
+      "type": "TEXT",
+      "max_length": 2000
+    },
+    {
+      "name": "approval",
+      "type": "ENUM",
+      "options": [
+        "each",
+        "within_limits"
+      ],
+      "default": "each"
+    },
+    {
+      "name": "caps",
+      "type": "JSON"
+    },
+    {
+      "name": "settings",
+      "type": "JSON"
+    }
+  ],
+  "config": {}
+}

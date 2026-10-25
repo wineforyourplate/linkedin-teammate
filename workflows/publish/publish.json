@@ -1,0 +1,233 @@
+{
+  "name": "publish",
+  "description": "Wait for an approved post's slot, then publish it: through the LinkedIn API when the person connected it and the format allows, otherwise in their signed-in browser.",
+  "start": {
+    "type": "DATASTORE_EVENT",
+    "config": {
+      "table_name": "drafts",
+      "operations": [
+        "INSERT",
+        "UPDATE"
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "clock",
+      "type": "FUNCTION",
+      "label": "Check the slot",
+      "config": {
+        "function_name": "post_clock",
+        "input_mapping": {
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          },
+          "approved_at": {
+            "type": "expression",
+            "value": "start.payload.approved_at",
+            "optional": true
+          }
+        }
+      }
+    },
+    {
+      "id": "route",
+      "type": "DECISION",
+      "label": "Publish, wait or stop?",
+      "config": {
+        "rules": [
+          {
+            "condition": "(recheck.action || clock.action) == 'publish'",
+            "next_node_id": "how"
+          },
+          {
+            "condition": "(recheck.action || clock.action) == 'wait_short'",
+            "next_node_id": "wait_short"
+          },
+          {
+            "condition": "(recheck.action || clock.action) == 'wait_long'",
+            "next_node_id": "wait_long"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wait_long",
+      "type": "WAIT_UNTIL",
+      "label": "An hour",
+      "config": {
+        "timeout_seconds": 3600
+      }
+    },
+    {
+      "id": "wait_short",
+      "type": "WAIT_UNTIL",
+      "label": "Five minutes",
+      "config": {
+        "timeout_seconds": 300
+      }
+    },
+    {
+      "id": "recheck",
+      "type": "FUNCTION",
+      "label": "Check the slot again",
+      "config": {
+        "function_name": "post_clock",
+        "input_mapping": {
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          },
+          "approved_at": {
+            "type": "expression",
+            "value": "start.payload.approved_at",
+            "optional": true
+          }
+        }
+      }
+    },
+    {
+      "id": "how",
+      "type": "DECISION",
+      "label": "API or browser?",
+      "config": {
+        "rules": [
+          {
+            "condition": "(recheck.api || clock.api) == `true`",
+            "next_node_id": "api"
+          }
+        ]
+      }
+    },
+    {
+      "id": "api",
+      "type": "FUNCTION",
+      "label": "Publish through the LinkedIn API",
+      "config": {
+        "function_name": "publish_api",
+        "input_mapping": {
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          }
+        }
+      }
+    },
+    {
+      "id": "api_ok",
+      "type": "DECISION",
+      "label": "Published?",
+      "config": {
+        "rules": [
+          {
+            "condition": "api.ok == `true`",
+            "next_node_id": "published"
+          }
+        ]
+      }
+    },
+    {
+      "id": "browser",
+      "type": "AGENT",
+      "label": "Publish in the browser",
+      "config": {
+        "agent_name": "teammate",
+        "input_mapping": {
+          "task": {
+            "type": "literal",
+            "value": "publish"
+          },
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          }
+        }
+      }
+    },
+    {
+      "id": "published",
+      "type": "END",
+      "label": "Published",
+      "config": {}
+    },
+    {
+      "id": "stopped",
+      "type": "END",
+      "label": "No longer approved",
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "source": "clock",
+      "target": "route"
+    },
+    {
+      "id": "e1",
+      "source": "route",
+      "target": "stopped"
+    },
+    {
+      "id": "e2",
+      "source": "wait_long",
+      "target": "recheck"
+    },
+    {
+      "id": "e3",
+      "source": "wait_short",
+      "target": "recheck"
+    },
+    {
+      "id": "e4",
+      "source": "recheck",
+      "target": "route"
+    },
+    {
+      "id": "e5",
+      "source": "how",
+      "target": "browser"
+    },
+    {
+      "id": "e6",
+      "source": "api",
+      "target": "api_ok"
+    },
+    {
+      "id": "e7",
+      "source": "api_ok",
+      "target": "browser"
+    },
+    {
+      "id": "e8",
+      "source": "browser",
+      "target": "published"
+    },
+    {
+      "id": "e9",
+      "source": "route",
+      "target": "how"
+    },
+    {
+      "id": "e10",
+      "source": "route",
+      "target": "wait_short"
+    },
+    {
+      "id": "e11",
+      "source": "route",
+      "target": "wait_long"
+    },
+    {
+      "id": "e12",
+      "source": "how",
+      "target": "api"
+    },
+    {
+      "id": "e13",
+      "source": "api_ok",
+      "target": "published"
+    }
+  ]
+}

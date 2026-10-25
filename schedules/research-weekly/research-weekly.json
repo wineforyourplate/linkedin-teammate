@@ -1,0 +1,17 @@
+{
+  "visibility": "POD",
+  "is_active": true,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "name": "research-weekly",
+  "schedule_type": "TIME",
+  "agent_name": "teammate",
+  "workflow_name": null,
+  "instruction": "[research] Weekly refresh: research every active topic as the research-topic skill says, then keep 3 fresh ideas that each cite a signal. Nobody is watching: never ask anything.",
+  "config": {
+    "cron": "0 8 * * 1",
+    "timezone": "Asia/Kolkata"
+  }
+}

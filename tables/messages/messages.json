@@ -1,0 +1,53 @@
+{
+  "name": "messages",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "person_id",
+      "type": "UUID",
+      "foreign_key": {
+        "references": "people.id"
+      }
+    },
+    {
+      "name": "kind",
+      "type": "ENUM",
+      "options": [
+        "first",
+        "followup",
+        "reply"
+      ],
+      "default": "first"
+    },
+    {
+      "name": "body",
+      "type": "TEXT",
+      "max_length": 2000,
+      "required": true
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "draft",
+        "approved",
+        "sent",
+        "skipped",
+        "failed"
+      ],
+      "default": "draft"
+    },
+    {
+      "name": "sent_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "error",
+      "type": "TEXT",
+      "max_length": 1000
+    }
+  ],
+  "config": {}
+}

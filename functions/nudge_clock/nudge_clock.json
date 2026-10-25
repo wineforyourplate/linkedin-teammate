@@ -1,0 +1,46 @@
+{
+  "name": "nudge_clock",
+  "description": "Every half hour: is it time for today's nudge (weekdays, half an hour before their posts, something waiting, not sent today)? Marks the day before saying yes, so a message never goes out twice.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "drafts",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "engagements",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "people",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      }
+    ]
+  }
+}

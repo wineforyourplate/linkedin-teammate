@@ -1,0 +1,10 @@
+{ "name": "mythbuster", "title": "Mythbuster", "description": "Name a belief the reader holds, then take it apart with proof, two myths at most, and concede where it's partly right.",
+  "slides": [
+    {"layout": "cover", "purpose": "The myth as people say it, with the turn"},
+    {"layout": "before-after", "purpose": "Myth 1 against what actually happens"},
+    {"layout": "screenshot", "purpose": "The proof for myth 1 (or a stat slide)"},
+    {"layout": "before-after", "purpose": "Myth 2 against what actually happens"},
+    {"layout": "stat", "purpose": "The proof for myth 2 (or a screenshot slide)"},
+    {"layout": "honest", "purpose": "Where the myth is partly right"},
+    {"layout": "close", "purpose": "The takeaway and a real question"}
+  ] }

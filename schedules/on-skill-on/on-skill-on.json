@@ -1,0 +1,26 @@
+{
+  "name": "on-skill-on",
+  "visibility": "POD",
+  "is_active": true,
+  "filter_instruction": null,
+  "filter_output_schema": null,
+  "account_id": null,
+  "connector_trigger_id": null,
+  "schedule_type": "DATASTORE",
+  "agent_name": "teammate",
+  "workflow_name": null,
+  "instruction": "[start] The person just switched on one skill (the row is in this message). Do its first run now as that skill's file says, within today's allowance. Nobody is watching this run: never ask, only message them if something needs them.",
+  "config": {
+    "table_name": "skills",
+    "operations": [
+      "UPDATE"
+    ],
+    "when": {
+      "state": {
+        "to": "on"
+      }
+    },
+    "bulk_writes": "each",
+    "import_writes": "each"
+  }
+}

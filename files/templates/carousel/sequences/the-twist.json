@@ -1,0 +1,9 @@
+{ "name": "the-twist", "title": "The twist", "description": "The surprising receipt, then what it means.",
+  "slides": [
+    {"layout": "cover", "purpose": "The surprising claim"},
+    {"layout": "stat", "purpose": "The number behind it, with its denominator"},
+    {"layout": "before-after", "purpose": "Why it's different from the usual way"},
+    {"layout": "point", "purpose": "How it works, in one idea"},
+    {"layout": "honest", "purpose": "The limit"},
+    {"layout": "close", "purpose": "The takeaway and a real question"}
+  ] }

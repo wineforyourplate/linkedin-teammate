@@ -1,0 +1,45 @@
+{
+  "name": "allowance",
+  "description": "How much a skill may still do on LinkedIn today: one shared daily budget, per-skill ramps, the acceptance-rate pause and the checkpoint stop.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "skills",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "activity",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "people",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      }
+    ]
+  }
+}

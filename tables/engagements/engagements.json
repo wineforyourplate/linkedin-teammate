@@ -1,0 +1,142 @@
+{
+  "name": "engagements",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "name": "post_url",
+      "type": "TEXT",
+      "max_length": 600,
+      "required": true
+    },
+    {
+      "name": "author_name",
+      "type": "TEXT",
+      "max_length": 200
+    },
+    {
+      "name": "author_headline",
+      "type": "TEXT",
+      "max_length": 400
+    },
+    {
+      "name": "author_url",
+      "type": "TEXT",
+      "max_length": 500
+    },
+    {
+      "name": "excerpt",
+      "type": "TEXT",
+      "max_length": 700
+    },
+    {
+      "name": "reason",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "should_like",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    {
+      "name": "comment_draft",
+      "type": "TEXT",
+      "max_length": 1250
+    },
+    {
+      "name": "status",
+      "type": "ENUM",
+      "options": [
+        "proposed",
+        "liked",
+        "approved",
+        "posting",
+        "commented",
+        "skipped",
+        "failed"
+      ],
+      "default": "proposed"
+    },
+    {
+      "name": "done_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "topic",
+      "type": "TEXT",
+      "max_length": 120
+    },
+    {
+      "name": "posted_at",
+      "type": "DATETIME"
+    },
+    {
+      "name": "comment_url",
+      "type": "TEXT",
+      "max_length": 600
+    },
+    {
+      "name": "error",
+      "type": "TEXT",
+      "max_length": 500
+    },
+    {
+      "name": "method",
+      "type": "TEXT",
+      "max_length": 80
+    },
+    {
+      "name": "posted_via",
+      "type": "TEXT",
+      "max_length": 40
+    },
+    {
+      "name": "experiment",
+      "type": "TEXT",
+      "max_length": 120
+    },
+    {
+      "name": "author_followers",
+      "type": "INTEGER"
+    },
+    {
+      "name": "post_reactions",
+      "type": "INTEGER"
+    },
+    {
+      "name": "post_comments",
+      "type": "INTEGER"
+    },
+    {
+      "name": "seconds_spent",
+      "type": "INTEGER"
+    },
+    {
+      "name": "outcome",
+      "type": "JSON"
+    },
+    {
+      "name": "story",
+      "type": "TEXT",
+      "max_length": 160
+    },
+    {
+      "name": "drafted_by",
+      "type": "TEXT",
+      "max_length": 80
+    },
+    {
+      "name": "batch",
+      "type": "TEXT",
+      "max_length": 60
+    },
+    {
+      "name": "author_photo",
+      "type": "TEXT",
+      "max_length": 800
+    }
+  ],
+  "config": {}
+}

@@ -1,0 +1,45 @@
+{
+  "name": "health_check",
+  "description": "Every two hours: is the LinkedIn connection or the LinkedIn browser broken in a way only the person can fix? Writes profile.health for the app's Needs your help, and says help (at most once a day per problem) so the teammate can tell them.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "drafts",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "skills",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "connector",
+        "resource_name": "linkedin",
+        "permission_ids": [
+          "connector.use"
+        ]
+      }
+    ]
+  }
+}
