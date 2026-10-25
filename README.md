@@ -171,6 +171,10 @@ cd linkedin-teammate
 
 lemma --org <org-id> pods create linkedin-teammate
 lemma --pod <pod-id> pods import . --dry-run
+
+VITE_LEMMA_API_URL="https://api.<your-lemma-host>" \
+VITE_LEMMA_AUTH_URL="https://<your-lemma-host>/auth" \
+VITE_LEMMA_POD_ID="<pod-id>" \
 lemma --pod <pod-id> pods import .
 
 bash scripts/bootstrap.sh --pod <pod-id>

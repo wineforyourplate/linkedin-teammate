@@ -16,11 +16,12 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 pod=""
+server=(lemma)
 cli=(lemma)
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --pod) pod="$2"; shift 2 ;;
-    --server) cli+=(--server "$2"); shift 2 ;;
+    --server) server+=(--server "$2"); cli+=(--server "$2"); shift 2 ;;
     --org) cli+=(--org "$2"); shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
@@ -71,6 +72,9 @@ done
 
 echo "== app"
 source="$repo_root/apps/teammate/source"
+server_json="$("${server[@]}" servers show --json)"
+api_url="$(json_field "d['base_url']['value']" <<<"$server_json")"
+auth_url="$(json_field "d['auth_url']['value']" <<<"$server_json")"
 status="$(lemma_pod apps get teammate --json 2>/dev/null | json_field "d.get('status')" || echo MISSING)"
 if [[ "$status" == "READY" ]]; then
   echo "ready    teammate"
@@ -78,6 +82,7 @@ else
   echo "deploying teammate (was $status)"
   (
     cd "$source"
+    export VITE_LEMMA_API_URL="$api_url" VITE_LEMMA_AUTH_URL="$auth_url" VITE_LEMMA_POD_ID="$pod"
     npm ci --no-audit --no-fund >/dev/null
     npm run build >/dev/null
     "${cli[@]}" --pod "$pod" apps deploy teammate --dist-dir dist -y >/dev/null
