@@ -149,8 +149,9 @@ https://lemma.work/import/github/wineforyourplate/linkedin-teammate
 ```
 
 After the import, run the bootstrap once from a clone of this repo. It finishes what the import
-leaves undone: creates the folders, uploads the carousel design system, publishes the skills,
-restores the agent's and functions' permissions, and builds and deploys the app.
+leaves undone: declares the LinkedIn connector, creates the folders, uploads the carousel design
+system, publishes the skills, restores the agent's and functions' permissions, and builds and deploys
+the app.
 
 ```bash
 git clone https://github.com/wineforyourplate/linkedin-teammate.git && cd linkedin-teammate
@@ -170,16 +171,12 @@ git clone https://github.com/wineforyourplate/linkedin-teammate.git
 cd linkedin-teammate
 
 lemma --org <org-id> pods create linkedin-teammate
-lemma --pod <pod-id> pods import . --dry-run
-
-VITE_LEMMA_API_URL="https://api.<your-lemma-host>" \
-VITE_LEMMA_AUTH_URL="https://<your-lemma-host>/auth" \
-VITE_LEMMA_POD_ID="<pod-id>" \
-lemma --pod <pod-id> pods import .
-
-bash scripts/bootstrap.sh --pod <pod-id>
+bash scripts/bootstrap.sh --pod <pod-id> --import
 lemma --pod <pod-id> apps open teammate
 ```
+
+`--import` declares the LinkedIn connector, imports the whole bundle, then finishes the install the
+same way.
 
 Every part, how to wire it by hand, and a smoke test are in [DESIGN.md](./DESIGN.md).
 
@@ -187,9 +184,9 @@ Every part, how to wire it by hand, and a smoke test are in [DESIGN.md](./DESIGN
 
 ### Connect LinkedIn
 
-Onboarding offers it first, or connect later from Personalization, Connections. Your Lemma
-organisation needs the LinkedIn connector enabled. Connector accounts belong to each person and never
-travel with this repository.
+Enable the LinkedIn connector in your Lemma organisation before you install; the pod's LinkedIn
+permissions point at it. Then each person connects their own account: onboarding offers it first, or
+later from Personalization, Connections. Accounts never travel with this repository.
 
 ## How it works
 
