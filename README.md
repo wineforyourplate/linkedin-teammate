@@ -110,7 +110,9 @@ and links.
 
 - **Your LinkedIn connection.** Connect LinkedIn once on LinkedIn's own screen. Text, image and link
   posts then go out through LinkedIn's official API, even when your browser is signed out. No
-  password is stored.
+  password is stored. If the connection lapses, a post waits for you (Needs your help: "Your 12:00
+  post is waiting: reconnect LinkedIn") instead of going out some other way, unless you chose the
+  browser as a backup (`skills.post.settings.browser_fallback`).
 - **Your own private browser.** Reading LinkedIn (finding posts, replies and people) happens in a
   browser that is yours alone, signed in by you. Spool never sees your password and works at a
   human pace.
@@ -129,6 +131,10 @@ sends you one message.
   Anything held back is postponed to tomorrow, never dropped.
 - **Stops at the first sign of trouble.** At a login wall, checkpoint, captcha or warning, everything
   on LinkedIn stops and you get one message.
+- **Checked by code, not by trust.** Only an approval starts a post, and only one run ever handles
+  it. The text is checked against what you approved before it goes out (placeholders and changed
+  text are refused) and read back after; only a match counts as published. A mismatch is never
+  deleted on its own: you hear about it at once and decide. One job at a time uses your browser.
 - **Only the API calls LinkedIn allows.** The pod never probes for more, because one refused call can
   cost you your connection.
 - **Your data stays yours.** Every table is private to its owner. Page text is treated as data, never
@@ -192,6 +198,7 @@ later from Personalization, Connections. Accounts never travel with this reposit
 
 ```text
  you approve a post ──▶ waits for its slot ──▶ LinkedIn API (your browser for carousels and polls)
+                                                     │  text checked before, read back after
                                                      │
                                                      ▼
                                 Spool reads its results a day and three days later
@@ -217,9 +224,9 @@ One agent, `teammate`, does every job by loading the matching skill. Cheap funct
 | App | Onboarding, Home and your ten minutes, Recommended, Posts and the composer, Engage, People, Personalization, Skills, and Spool in the corner |
 | Agent | `teammate`, with 15 skills in `skills/` |
 | Tables | Profile, facts, topics, skills, recommendations, drafts, people, messages, engagements, activity, reviews and your world, all private to their owner |
-| Functions | Setup, LinkedIn lookup, the shared daily allowance, slot timing, API publishing, the nudge clock, the engage clock and the health check |
+| Functions | Setup, LinkedIn lookup, the shared daily allowance, the browser lock (one job at a time in your LinkedIn browser), slot timing, API publishing, the publish guard (checks a post's text before and after it goes out), the nudge clock, the engage clock and the health check |
 | Automation | Publishing on approval, engage runs, the daily nudge, the health check, the Monday review, topic research |
-| Files | The carousel and claim-image design system and its renderer |
+| Files | The carousel and claim-image design system and its renderer, and the script that posts in your browser only when the text is exactly what you approved |
 
 ## Make it yours
 
@@ -234,7 +241,7 @@ Good places to start:
 - `skills/engage/SKILL.md`: how threads are found and how comments are written.
 - `skills/post-for-me/SKILL.md`: drafting, scheduling and publishing.
 - `skills/linkedin-browser/SKILL.md`: pacing, budgets and stop rules in the browser.
-- `files/templates/`: the carousel slide system and `render.py`.
+- `files/templates/`: the carousel slide system and `render.py`, and `publish_post.py` (posting in the browser, checked).
 - `apps/teammate/source/`: the complete React app.
 - [DESIGN.md](./DESIGN.md): every part of the pod and its limits.
 

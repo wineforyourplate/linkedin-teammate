@@ -1,0 +1,22 @@
+{
+  "name": "browser_lock",
+  "description": "One run at a time in the person's LinkedIn browser: take it (with an owner and an expiry) before opening LinkedIn, renew it on a long job, release it when done. A run that can't take it stops and never shares the browser.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      }
+    ]
+  }
+}

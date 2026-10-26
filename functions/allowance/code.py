@@ -12,6 +12,9 @@ page loads are left for everything.
 
 Call it before a batch, and log every action you take to `activity` so the next
 call sees it.
+
+It also says no to anyone who doesn't hold the browser (see browser_lock): pass
+the `owner` you took it as. Only one run is ever in the person's browser.
 """
 
 from datetime import datetime, timedelta, timezone
@@ -32,6 +35,7 @@ class AllowanceInput(BaseModel):
     skill: str
     action: str
     count: int = 1
+    owner: str | None = None  # who you took the browser as (function_browser_lock)
 
 
 class AllowanceResult(BaseModel):
@@ -73,6 +77,14 @@ async def allowance(ctx: FunctionContext, data: AllowanceInput) -> AllowanceResu
 
     if profile.get("browser_status") == "checkpoint":
         return deny("LinkedIn showed a checkpoint or warning. Everything pauses until the person signs in again.")
+    lock = profile.get("browser_lock") or {}
+    until = _parse(lock.get("until"))
+    if not (data.owner and lock.get("owner") == data.owner and until and until > now):
+        holder = lock.get("owner") if until and until > now else None
+        return deny(
+            f"the browser is in use by {holder}: stop and don't open LinkedIn" if holder
+            else "take the browser first with function_browser_lock and pass the same owner here"
+        )
 
     skill = next(
         (s for s in pod.records.list("skills", limit=50).to_dict()["items"] if s.get("key") == data.skill), None

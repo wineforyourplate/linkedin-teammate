@@ -88,8 +88,16 @@ export function useHelp(): Help[] {
   if (browserDown && b === 'signed_out') out.push({ key: 'browser:signed_out', emoji: '🔑', title: 'Sign in to your LinkedIn browser', detail: 'Everything I do in your browser is paused until you do. You type your password there; I never see it.', act: { kind: 'browser', label: 'Sign in' } })
   if (browserDown && b === 'checkpoint') out.push({ key: 'browser:checkpoint', emoji: '🛡️', title: 'LinkedIn wants to check it’s you', detail: 'Finish the check in your LinkedIn browser. Everything there is paused until you do.', act: { kind: 'browser', label: 'Open it' } })
 
+  // a post held back until they fix LinkedIn (the API couldn't take it and they haven't chosen the browser)
+  const recent = drafts.filter((d) => d.status === 'failed' && hoursSince(d.approved_at || d.scheduled_for) < 7 * 24)
+  const held = recent.filter((d) => d.results?.publish?.held)
+  for (const d of held) {
+    const fix = d.results?.publish?.held === 'api_error' ? 'check LinkedIn' : d.results?.publish?.held === 'connect' ? 'connect LinkedIn' : 'reconnect LinkedIn'
+    out.push({ key: `held:${d.id}`, emoji: '⏳', title: `Your ${fmtSlot(d.scheduled_for, profile.timezone)} post is waiting: ${fix}`, detail: 'Nothing went out. Reconnect LinkedIn (30 seconds), then open the post and schedule it again.', act: { kind: 'reconnect', label: 'Reconnect' } })
+  }
+
   // a post that didn't go out
-  const failed = drafts.filter((d) => d.status === 'failed' && hoursSince(d.approved_at || d.scheduled_for) < 7 * 24)
+  const failed = recent.filter((d) => !d.results?.publish?.held)
   if (failed.length) {
     const first = (failed[0].title || failed[0].body || '').split('\n')[0].slice(0, 60)
     out.push({ key: `post:${failed[0].id}`, emoji: '✍️', title: failed.length === 1 ? 'A post didn’t go out' : `${failed.length} posts didn’t go out`, detail: first ? `“${first}” needs another try.` : 'It needs another try.', act: { kind: 'go', label: 'See it', view: 'posts' } })

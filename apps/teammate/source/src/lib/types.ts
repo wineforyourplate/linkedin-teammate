@@ -229,8 +229,9 @@ export interface Draft extends Row {
   impressions?: number | null
   /** Earlier texts of this draft, oldest first (the composer keeps them). */
   versions?: { at: string; body: string }[] | null
-  /** What the post did, read in their browser a day and three days after it went out. */
-  results?: { h24?: PostResult | null; h72?: PostResult | null } | null
+  /** What the post did, read in their browser a day and three days after it went out; `publish` is
+   * the publish run's record (held: why the post is waiting for them; verdict: the read-back). */
+  results?: { h24?: PostResult | null; h72?: PostResult | null; publish?: { held?: 'connect' | 'reconnect' | 'api_error' | null; verdict?: string | null } | null } | null
   led_to_conversation?: boolean | null
 }
 

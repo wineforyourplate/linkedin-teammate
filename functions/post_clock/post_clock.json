@@ -1,6 +1,6 @@
 {
   "name": "post_clock",
-  "description": "One tick of an approved post's clock: publish now, wait a few minutes, wait an hour, or stop because it is no longer approved. Also says whether the post can go through the LinkedIn API.",
+  "description": "One tick of an approved post's clock: wait, or at the slot stop runs an approval didn't start, cancel runaway extra runs for one approval (and say so once), claim the draft (approved to publishing, with this run's key, read back), and route it: the LinkedIn API, the browser only for formats the API can't post or when the person opted in, otherwise hold it and tell them once.",
   "type": "API",
   "visibility": "POD",
   "code": {
@@ -13,7 +13,8 @@
         "resource_name": "drafts",
         "permission_ids": [
           "datastore.table.read",
-          "datastore.record.read"
+          "datastore.record.read",
+          "datastore.record.write"
         ]
       },
       {
@@ -22,6 +23,30 @@
         "permission_ids": [
           "datastore.table.read",
           "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "skills",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "activity",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "workflow",
+        "resource_name": "publish",
+        "permission_ids": [
+          "workflow.execute"
         ]
       }
     ]

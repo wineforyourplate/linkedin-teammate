@@ -8,9 +8,40 @@
   },
   "permissions": {
     "grants": [
-      {"resource_type": "datastore_table", "resource_name": "profile", "permission_ids": ["datastore.table.read", "datastore.record.read"]},
-      {"resource_type": "datastore_table", "resource_name": "skills", "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"]},
-      {"resource_type": "datastore_table", "resource_name": "engagements", "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"]}
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "skills",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "engagements",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "drafts",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      }
     ]
   }
 }
