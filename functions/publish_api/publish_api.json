@@ -1,6 +1,6 @@
 {
   "name": "publish_api",
-  "description": "Publish an approved text, image or link post through LinkedIn's official API when the person connected it. Anything else comes back as use_browser.",
+  "description": "Publish a claimed text, image or link post through LinkedIn's official API, after the same text checks as publish_guard. When the API fails the post is held and the person told once; the browser is used instead only if they opted in. Never writes the draft back to approved.",
   "type": "API",
   "visibility": "POD",
   "code": {
@@ -40,6 +40,14 @@
         "resource_name": "linkedin",
         "permission_ids": [
           "connector.use"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "skills",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
         ]
       }
     ]

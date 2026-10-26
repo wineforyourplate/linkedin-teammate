@@ -1,0 +1,40 @@
+{
+  "name": "publish_guard",
+  "description": "The gate every post passes. before: the draft must be claimed by its publish run, its text unchanged and a real post (no placeholders, not a few words); takes the browser for the post and returns the exact text, once per claim. after: compares the live post's read-back with the approved text; only a match marks it published, a mismatch marks it failed (deleting nothing) and tells the person once; gives the browser back.",
+  "type": "API",
+  "visibility": "POD",
+  "code": {
+    "$file": "code.py"
+  },
+  "permissions": {
+    "grants": [
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "drafts",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "activity",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "profile",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ]
+      }
+    ]
+  }
+}

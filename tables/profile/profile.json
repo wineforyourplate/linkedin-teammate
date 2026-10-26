@@ -326,6 +326,11 @@
       "name": "world_refreshed_at",
       "type": "DATETIME",
       "description": "The last full map or weekly refresh of their world."
+    },
+    {
+      "name": "browser_lock",
+      "type": "JSON",
+      "description": "Who is using the person's LinkedIn browser right now, so only one run ever does: {owner, until, taken_at}. Taken and released through the browser_lock function; an expired lock is free."
     }
   ],
   "config": {}

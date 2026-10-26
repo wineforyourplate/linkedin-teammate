@@ -19,6 +19,9 @@
     "when": {
       "status": {
         "to": "approved"
+      },
+      "approved_at": {
+        "changed": true
       }
     },
     "bulk_writes": "each",

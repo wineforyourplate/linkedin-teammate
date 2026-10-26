@@ -1,6 +1,6 @@
 {
   "name": "publish",
-  "description": "Wait for an approved post's slot, then publish it: through the LinkedIn API when the person connected it and the format allows, otherwise in their signed-in browser.",
+  "description": "Wait for an approved post's slot, then claim it and publish it: through the LinkedIn API for text, image and link posts (then read back), in the browser only for what the API can't post or when the person opted in, otherwise held until they reconnect. Only a write that approved the draft starts a publish, one run owns it, and the text is checked before and after.",
   "start": {
     "type": "DATASTORE_EVENT",
     "config": {
@@ -27,6 +27,26 @@
             "type": "expression",
             "value": "start.payload.approved_at",
             "optional": true
+          },
+          "approved_body": {
+            "type": "expression",
+            "value": "start.payload.body",
+            "optional": true
+          },
+          "trigger_operation": {
+            "type": "expression",
+            "value": "start.metadata.operation",
+            "optional": true
+          },
+          "trigger_changed": {
+            "type": "expression",
+            "value": "start.metadata.changed",
+            "optional": true
+          },
+          "run_key": {
+            "type": "expression",
+            "value": "start.metadata.fired_at",
+            "optional": true
           }
         }
       }
@@ -38,6 +58,10 @@
       "config": {
         "rules": [
           {
+            "condition": "(recheck.action || clock.action) == 'publish' && (recheck.tell || clock.tell) == `true`",
+            "next_node_id": "tell_go"
+          },
+          {
             "condition": "(recheck.action || clock.action) == 'publish'",
             "next_node_id": "how"
           },
@@ -48,6 +72,10 @@
           {
             "condition": "(recheck.action || clock.action) == 'wait_long'",
             "next_node_id": "wait_long"
+          },
+          {
+            "condition": "(recheck.action || clock.action) == 'stop' && (recheck.tell || clock.tell) == `true`",
+            "next_node_id": "tell_stop"
           }
         ]
       }
@@ -83,6 +111,26 @@
             "type": "expression",
             "value": "start.payload.approved_at",
             "optional": true
+          },
+          "approved_body": {
+            "type": "expression",
+            "value": "start.payload.body",
+            "optional": true
+          },
+          "trigger_operation": {
+            "type": "expression",
+            "value": "start.metadata.operation",
+            "optional": true
+          },
+          "trigger_changed": {
+            "type": "expression",
+            "value": "start.metadata.changed",
+            "optional": true
+          },
+          "run_key": {
+            "type": "expression",
+            "value": "start.metadata.fired_at",
+            "optional": true
           }
         }
       }
@@ -94,8 +142,12 @@
       "config": {
         "rules": [
           {
-            "condition": "(recheck.api || clock.api) == `true`",
+            "condition": "(recheck.route || clock.route) == 'api'",
             "next_node_id": "api"
+          },
+          {
+            "condition": "(recheck.route || clock.route) == 'browser'",
+            "next_node_id": "browser"
           }
         ]
       }
@@ -117,12 +169,20 @@
     {
       "id": "api_ok",
       "type": "DECISION",
-      "label": "Published?",
+      "label": "Posted, or browser by choice?",
       "config": {
         "rules": [
           {
             "condition": "api.ok == `true`",
-            "next_node_id": "published"
+            "next_node_id": "verify"
+          },
+          {
+            "condition": "api.use_browser == `true`",
+            "next_node_id": "browser"
+          },
+          {
+            "condition": "api.tell == `true`",
+            "next_node_id": "tell_stop"
           }
         ]
       }
@@ -146,6 +206,60 @@
       }
     },
     {
+      "id": "verify",
+      "type": "AGENT",
+      "label": "Read the post back",
+      "config": {
+        "agent_name": "teammate",
+        "input_mapping": {
+          "task": {
+            "type": "literal",
+            "value": "verify-post"
+          },
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          }
+        }
+      }
+    },
+    {
+      "id": "tell_go",
+      "type": "AGENT",
+      "label": "Tell them, then go on",
+      "config": {
+        "agent_name": "teammate",
+        "input_mapping": {
+          "task": {
+            "type": "literal",
+            "value": "publish-tell"
+          },
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          }
+        }
+      }
+    },
+    {
+      "id": "tell_stop",
+      "type": "AGENT",
+      "label": "Tell them it was held",
+      "config": {
+        "agent_name": "teammate",
+        "input_mapping": {
+          "task": {
+            "type": "literal",
+            "value": "publish-tell"
+          },
+          "draft_id": {
+            "type": "expression",
+            "value": "start.metadata.record_id"
+          }
+        }
+      }
+    },
+    {
       "id": "published",
       "type": "END",
       "label": "Published",
@@ -154,7 +268,7 @@
     {
       "id": "stopped",
       "type": "END",
-      "label": "No longer approved",
+      "label": "Stopped, held or refused",
       "config": {}
     }
   ],
@@ -163,11 +277,6 @@
       "id": "e0",
       "source": "clock",
       "target": "route"
-    },
-    {
-      "id": "e1",
-      "source": "route",
-      "target": "stopped"
     },
     {
       "id": "e2",
@@ -185,24 +294,39 @@
       "target": "route"
     },
     {
-      "id": "e5",
-      "source": "how",
-      "target": "browser"
-    },
-    {
       "id": "e6",
       "source": "api",
       "target": "api_ok"
     },
     {
-      "id": "e7",
-      "source": "api_ok",
-      "target": "browser"
-    },
-    {
       "id": "e8",
       "source": "browser",
       "target": "published"
+    },
+    {
+      "id": "e15",
+      "source": "verify",
+      "target": "published"
+    },
+    {
+      "id": "e18",
+      "source": "how",
+      "target": "stopped"
+    },
+    {
+      "id": "e5",
+      "source": "how",
+      "target": "browser"
+    },
+    {
+      "id": "e12",
+      "source": "how",
+      "target": "api"
+    },
+    {
+      "id": "e1",
+      "source": "route",
+      "target": "stopped"
     },
     {
       "id": "e9",
@@ -220,14 +344,44 @@
       "target": "wait_long"
     },
     {
-      "id": "e12",
-      "source": "how",
-      "target": "api"
+      "id": "e20",
+      "source": "route",
+      "target": "tell_go"
     },
     {
-      "id": "e13",
+      "id": "e21",
+      "source": "route",
+      "target": "tell_stop"
+    },
+    {
+      "id": "e19",
       "source": "api_ok",
-      "target": "published"
+      "target": "stopped"
+    },
+    {
+      "id": "e7",
+      "source": "api_ok",
+      "target": "browser"
+    },
+    {
+      "id": "e14",
+      "source": "api_ok",
+      "target": "verify"
+    },
+    {
+      "id": "e22",
+      "source": "api_ok",
+      "target": "tell_stop"
+    },
+    {
+      "id": "e23",
+      "source": "tell_go",
+      "target": "how"
+    },
+    {
+      "id": "e24",
+      "source": "tell_stop",
+      "target": "stopped"
     }
   ]
 }

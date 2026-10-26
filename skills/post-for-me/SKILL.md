@@ -203,32 +203,83 @@ When a draft they edited reaches `approved` or `published`, compare `first_draft
 
 ## Publishing (`task: publish`, from the workflow)
 
-The draft is `approved`. Text, image and link posts go through the LinkedIn API when they connected
-it; everything else, or anything the API refused, comes to you. Load `linkedin-browser`, check the
-session, and call `function_allowance` for `{skill: "post", action: "post"}`. Then:
+The publish run has already claimed the draft: it's `publishing`, and the text it claimed is on
+record. Text, image and link posts go through the LinkedIn API. When the API can't take one (LinkedIn
+needs reconnecting, an error), the post is **held**: the draft goes to `failed` with
+`results.publish.held`, and they're told once to reconnect and schedule it again. It comes to you in
+the browser only when the format needs it (carousel, poll, video) or they opted in
+(`skills.post.settings.browser_fallback`). Never post a held draft yourself.
 
-1. Set the draft to `publishing`.
-2. Open `https://www.linkedin.com/feed/`, click **Start a post**. The editor is a contenteditable box
-   (`role="textbox"`). Type the body in chunks. If typing fails, set its text and dispatch an `input`
-   event. Read it back.
-3. By format:
+In the browser, code picks the text, puts it in the composer and clicks Post. You never type or paste
+a post yourself, and never click Post any other way.
+
+1. `function_publish_guard {"draft_id": <id>, "stage": "before"}`. It checks the text and takes their
+   browser for this post.
+   - `busy: true`: another run has the browser. `wait_for` 120 seconds and ask again, up to 5 times.
+     Still busy? Go to step 7 with `clicked: false` and `note: "the browser was busy for 10 minutes"`.
+   - `ok: false` otherwise: stop there and don't open LinkedIn. The guard has told them if they need
+     to know; send `message_title` / `message_body` with `message_user` only if it gave you those.
+2. Load `linkedin-browser` and check the session (the guard already took the browser: don't take it
+   again). Call `function_allowance` for `{skill: "post", action: "post", owner: <the guard's owner>}`.
+3. `python3 /templates/publish_post.py compose --draft <id>`. It opens a fresh composer and puts the
+   draft's own text in, exactly, with its blank lines. (No `/templates` in your sandbox? `lemma files
+   download /templates/publish_post.py /tmp/publish_post.py` and run that.) If it says it couldn't
+   read the draft, write the guard's `text` to a file as is and use `--text-file <file> --sha <the
+   guard's sha>` instead of `--draft`, here and in step 5. If `ok` is false, go to step 7 with
+   `clicked: false`.
+4. By format, add what the post needs in the open composer, and never touch the text box:
    - **image**: the media button → upload the image files from `media` (download them from the pod
      to your sandbox first; `agent-browser upload <selector> <files>`).
    - **carousel**: **More** (or the "+") → **Add a document** → **Choose file** → upload the PDF
      from `pdf_path` → give the document a title (the draft's `title`) → **Done**.
    - **poll**: **More** → **Create a poll** → question and options → **Done**.
-   - **link**: paste the URL on its own line; let the preview load.
+   - **link**: the link is already in the text; give the preview a few seconds to load.
    - **video**: the video button → upload.
-4. Leave visibility as "Anyone". Click **Post**. Confirm the composer closed.
-5. LinkedIn doesn't open the new post. Open their activity
-   (`https://www.linkedin.com/in/me/recent-activity/all/`), take the newest post's permalink
-   (`https://www.linkedin.com/feed/update/urn:li:activity:<id>/`).
-6. Set `status: published`, `post_url`, `via: "browser"`, `published_at`. Log
-   `activity` `{skill: "post", action: "post", target: <url>, detail: "Published your post on …"}`.
+5. `python3 /templates/publish_post.py post --draft <id>`, once. In one browser call it checks the
+   composer still holds exactly the approved text, then clicks Post; if anything else is in the box,
+   it clicks nothing.
+6. `python3 /templates/publish_post.py readback`. It reads the newest post on their profile, with
+   "…more" opened.
+7. `function_publish_guard {"draft_id": <id>, "stage": "after", "clicked": <post's clicked>, "text":
+   <readback's text>, "card": <readback's card>}`. Pass `text` and `card` only when readback found a
+   `fresh` post. When Post wasn't clicked, add `note`: what stopped it, in one plain sentence. If you
+   have the post's permalink, add `post_url`. The guard compares what's live with the approved text
+   and records the outcome: `published` only on a match, `failed` when they differ. It writes the
+   `activity` row, tells them when they need to know, and gives the browser back. Don't set the
+   draft's `status`, `published_at` or `post_url` yourself.
+8. Send `message_title` / `message_body` with `message_user` only if the guard gave you those (its own
+   message didn't go). Otherwise say nothing more about this post.
 
-**Never retry automatically.** A double post is worse than a late one. If anything fails after you
-clicked Post, check their activity before trying again. If it didn't go out, set `failed` with a plain
-`error` and message them.
+**Rules for this job:**
+- **Never type test text into LinkedIn.** Not "P1", "test" or "hello" into a composer, comment box or
+  message, not even to see how the editor handles line breaks. On 26 Oct 2026 a test string typed
+  into the live composer went out under his name.
+- **One run in the browser at a time.** If the guard turns you away, or the page changes under you
+  (text you didn't put there, a composer you didn't open), stop and leave the browser alone.
+- **Never retry automatically.** A double post is worse than a late one. Once `post` clicked, call the
+  guard's `after` with `clicked: true` whatever happens next, and never run `post` again.
+- **Delete nothing.** When the live text is wrong, the guard marks the draft `failed` and tells them;
+  they decide what to do with the post.
+- **Any other time** ("post it now"), set the draft `approved` with `approved_at` and `scheduled_for`
+  now. The publish workflow takes it from there. Never publish outside `task: publish`, and never
+  write `approved` for any other reason: only an approval may start a publish.
+
+## A message from the publish run (`task: publish-tell`)
+
+The publish run held a post (LinkedIn needs reconnecting) or stopped a runaway, and couldn't message
+them itself. `function_publish_guard {"draft_id": <id>, "stage": "tell"}`, then send its
+`message_title` and `message_body` with `message_user`, exactly as given, once. If it gave none, send
+nothing. Don't open LinkedIn and don't touch the draft.
+
+## Reading back an API post (`task: verify-post`)
+
+The API sent the draft; it stays `publishing` until the read-back matches. Take the browser
+(`function_browser_lock {"action": "take", "owner": "verify <first 8 of draft_id>", "minutes": 10}`;
+busy: `wait_for` 120 seconds, up to 5 times). Load `linkedin-browser`, check the session, run
+`python3 /templates/publish_post.py readback`, then call `function_publish_guard` stage `after` with
+`clicked: true` as in step 7 above, and release the browser. If you can't read the page (busy for 10
+minutes, signed out, a checkpoint, nothing fresh), call it with no `text` and no `card`: it records the
+post as out but unchecked and tells them to have a look.
 
 **Works better with:** the LinkedIn connection. Text, image and link posts then go out through the
 official API even when your browser is signed out.

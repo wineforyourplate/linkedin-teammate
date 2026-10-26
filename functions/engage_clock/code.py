@@ -17,6 +17,9 @@ This check answers one of four things:
   twice.
 - "replies": the replies job is due.
 - "skip": nothing to do. Only "post", "find" and "replies" wake the agent.
+
+It also skips while another run holds the person's browser (browser_lock), or a
+post is being published, so no engage agent ever starts beside it.
 """
 
 from datetime import datetime, timedelta, timezone
@@ -71,6 +74,13 @@ async def engage_clock(ctx: FunctionContext, data: EngageClockInput) -> EngageCl
     if not skill or skill.get("state") != "on":
         return EngageClockResult(action="skip", reason="engage is not on")
     settings = dict(skill.get("settings") or {})
+    lock = p.get("browser_lock") or {}
+    until = _parse(lock.get("until"))
+    if lock.get("owner") and until and until > now:
+        return EngageClockResult(action="skip", reason=f"the browser is in use by {lock['owner']}")
+    publishing = pod.records.list("drafts", limit=5, filter=[{"field": "status", "op": "eq", "value": "publishing"}])
+    if any(now - (_parse(d.get("updated_at")) or now) < POST_STALE for d in publishing.to_dict().get("items") or []):
+        return EngageClockResult(action="skip", reason="a post is being published")
 
     # Posting: one queue, one agent run at a time.
     engs = _rows(pod, "engagements", 1000)

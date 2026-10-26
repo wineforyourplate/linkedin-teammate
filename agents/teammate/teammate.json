@@ -124,6 +124,20 @@
         ]
       },
       {
+        "resource_type": "function",
+        "resource_name": "publish_guard",
+        "permission_ids": [
+          "function.execute"
+        ]
+      },
+      {
+        "resource_type": "function",
+        "resource_name": "browser_lock",
+        "permission_ids": [
+          "function.execute"
+        ]
+      },
+      {
         "resource_type": "connector",
         "resource_name": "linkedin",
         "permission_ids": [

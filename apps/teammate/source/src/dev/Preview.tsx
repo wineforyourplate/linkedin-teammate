@@ -69,6 +69,9 @@ const DEMO_DRAFTS: Draft[] = [
   { id: 'dd4', status: 'approved', format: 'text', title: 'Your agent needs a manager, not a prompt', body: 'Your agent doesn’t need a better prompt. It needs a manager.', approved_at: hrs(-3), scheduled_for: slot(1) },
   { id: 'dd3', status: 'published', format: 'text', title: 'We fired our AI tool and hired a teammate', body: 'We fired our AI tool and hired a teammate.', published_at: hrs(-50), impressions: 4310, reactions: 86, comments: 23, results: { h72: { impressions: 4310, reactions: 86, comments: 23, profile_views: 41 } } },
 ]
+// &held=1: a post held back because LinkedIn needs reconnecting (Needs your help shows it).
+const HELD = q.get('held') === '1'
+const HELD_DRAFT: Draft = { id: 'dh1', status: 'failed', format: 'text', title: 'I have not replaced anyone yet', body: 'Every AI rollout I have been part of was sold as headcount. None of them ended that way.', approved_at: hrs(-26), scheduled_for: hrs(-1), error: 'Held, nothing went out: LinkedIn needs you to reconnect it. Tap Reconnect on Home, then schedule this post again.', results: { publish: { held: 'reconnect' } } }
 const DEMO_ENG: Engagement[] = [
   { id: 'de1', post_url: 'https://example.com/post/3', author_name: 'Priya Nair', author_headline: 'COO, 40-person agency', excerpt: 'Hot take: most “AI agents” are cron jobs with a chat box. Change my mind.', reason: 'A decider in your world, 40 minutes ago, 12 comments so far', comment_draft: 'Half agree. The cron job is fine. What’s missing is the review step: we hold every agent action in a queue for one human tap, and that one change took trust from zero to daily use.', status: 'proposed', posted_at: hrs(-0.7), author_followers: 34000, post_reactions: 140, post_comments: 12 },
   { id: 'de2', post_url: 'https://example.com/post/4', author_name: 'Jon Ellis', author_headline: 'Shipping an AI inbox', excerpt: 'We cut our support backlog by 60% with one agent. Here is the boring part nobody shows.', reason: 'A builder you watch, posted 2 hours ago', comment_draft: 'The boring part is the whole product. Which step did you keep a human on, and did it move after the first month?', status: 'proposed', posted_at: hrs(-2), author_followers: 18000, post_reactions: 210, post_comments: 31 },
@@ -162,7 +165,7 @@ export function Preview() {
   const step = (which === 'today' || isView || isApp ? 'done' : screen ? 'hello' : which) as Step
   const [profile, setProfile] = useState<Profile>(() => fakeProfile(step, screen))
   const [world, setWorld] = useState<WorldPerson[]>(fakeWorld)
-  const [drafts, setDrafts] = useState<Draft[]>(() => (DEMO ? [...DEMO_DRAFTS, DRAFT] : EMPTY || !screen ? [DRAFT] : [DRAFT, ...IDEAS]))
+  const [drafts, setDrafts] = useState<Draft[]>(() => [...(DEMO ? [...DEMO_DRAFTS, DRAFT] : EMPTY || !screen ? [DRAFT] : [DRAFT, ...IDEAS]), ...(HELD ? [HELD_DRAFT] : [])])
   const [topics, setTopics] = useState<Topic[]>(() => (EMPTY ? [] : TOPICS))
   const [facts, setFacts] = useState<Fact[]>(() =>
     [
