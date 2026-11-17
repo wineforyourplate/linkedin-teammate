@@ -52,10 +52,10 @@ export const SKILLS: SkillInfo[] = [
   {
     key: 'engage',
     name: 'Join conversations',
-    line: 'Posts worth commenting on, from your feed and the topics and people you pick, with a comment drafted for you',
-    cadence: 'Every session · up to 5 posts',
-    does: 'Two sources. First, your feed: what LinkedIn already shows you. Second, what you ask me to watch: topics (say, AI agents or hiring in startups), kinds of people (founders in Bengaluru) and specific accounts. I like the good posts within limits and draft one comment each. You post the comments yourself; LinkedIn doesn’t allow automated ones.',
-    approval: 'You post every comment',
+    line: 'Comments on the right posts, asks first, and an answer for everyone who replies to you',
+    cadence: 'Up to 3 runs a day at your times · replies every 2 hours',
+    does: 'I look for people asking for what you do, people who replied to you before, and fresh posts from your world and topics, and draft a comment that makes its own point. I answer everyone who replies to you, and when someone says they’ll take a look, I put them on your Interested list with a message ready. About 30 a day, at least 2 minutes apart, and I check every one after posting.',
+    approval: 'You approve, or switch on auto-post',
     needsBrowser: true,
   },
   {
@@ -139,7 +139,7 @@ export function defaultPlan(profile: Profile | null): Record<SkillKey, PlanItem>
     warm_up: signedIn
       ? { on: true, because: 'it keeps your account safe before any outreach' }
       : { on: false, note: 'Works in your own LinkedIn browser. Switch it on and I’ll help you sign in when it starts.' },
-    engage: { on: false, note: 'Fresh posts on your topics, with a reply ready. Works in your browser; I’ll help you sign in when it starts.' },
+    engage: { on: false, note: 'Comments on the right posts and answers for everyone who replies. Works in your browser; I’ll help you sign in when it starts.' },
     find_people: wantsPeople
       ? { on: false, because: `you said: ${GOAL_WORDS[firstPeopleGoal as string]}` }
       : { on: false },

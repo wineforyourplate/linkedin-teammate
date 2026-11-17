@@ -10,8 +10,10 @@ Two jobs, set separately on the Engage page, both off until switched on:
 - Finding (expensive): up to 3 runs a day, each with a time and a batch size.
 
 This check answers one of four things:
-- "post": comments they approved are waiting. They are claimed here (status "posting") and
-  posted one by one by a single agent run, never in parallel.
+- "post": comments they approved are waiting, or, with auto-post on (the engage skill's
+  `approval` is "within_limits"), the teammate's own drafts that have waited HOLD minutes for
+  the person to skip or edit them. They are claimed here (status "posting") and posted one by
+  one by a single agent run, never in parallel, never more than PER_HOUR in any 60 minutes.
 - "find": one of their runs is due. It covers posts published since the last run (at most 18
   hours back, at least 3). The run is marked here, before the agent starts, so it never starts
   twice.
@@ -34,7 +36,11 @@ FIND_STALE = timedelta(minutes=50)  # a find run that hasn't finished by then is
 POST_STALE = timedelta(minutes=60)  # a comment still "posting" after this needs a human look
 MAX_BACK = timedelta(hours=18)
 MIN_BACK = timedelta(hours=3)
-MAX_BATCH = 15
+MAX_BATCH = 8  # comments claimed for one posting run
+MAX_FIND = 15  # the biggest batch one finding run drafts
+PER_HOUR = 8  # never more than this many comments in any 60 minutes (the allowance enforces it too)
+BIG = 10_000  # replies to accounts this big are never auto-posted
+HOLD = timedelta(minutes=10)  # auto-post: a fresh draft waits this long, so the person can skip or edit it
 
 
 class EngageClockInput(BaseModel):
@@ -101,13 +107,40 @@ async def engage_clock(ctx: FunctionContext, data: EngageClockInput) -> EngageCl
     if running and now - running < FIND_STALE:
         return EngageClockResult(action="skip", reason="a find run is in progress")
 
-    if (settings.get("mode") or "approve") != "copy":
+    auto = skill.get("approval") == "within_limits"
+    if auto or (settings.get("mode") or "approve") != "copy":
+        hour = pod.query(
+            "select count(*) as n from activity where action = 'comment' "
+            f"and created_at >= '{(now - timedelta(hours=1)).isoformat()}'"
+        ).to_dict()["items"]
+        room = max(0, min(MAX_BATCH, PER_HOUR - int((hour or [{}])[0].get("n") or 0)))
         approved = sorted((e for e in engs if e.get("status") == "approved"), key=lambda e: str(e.get("updated_at") or ""))
-        if approved:
-            ids = [e["id"] for e in approved[:MAX_BATCH]]
-            for i in ids:
-                pod.table("engagements").update(i, {"status": "posting", "error": None})
-            return EngageClockResult(action="post", reason=f"{len(ids)} approved", ids=ids)
+        ready: list[dict] = []
+        if auto:
+            # Their own replies first (people talking to them), then the freshest posts.
+            ready = sorted(
+                (
+                    e for e in engs
+                    if e.get("status") == "proposed" and e.get("comment_draft") and e.get("signal") != "ignore"
+                    and now - (_parse(e.get("created_at")) or now) >= HOLD
+                    # A reply to a big account (10K+) always waits for the person.
+                    and not (e.get("method") in ("own_post", "thread") and int(e.get("author_followers") or 0) >= BIG)
+                ),
+                key=lambda e: (e.get("method") not in ("own_post", "thread"), str(e.get("posted_at") or "")),
+            )
+        if room and (approved or ready):
+            claim = (approved + ready)[:room]
+            for e in claim:
+                patch: dict[str, Any] = {"status": "posting", "error": None}
+                if e.get("status") == "proposed":
+                    patch["posted_via"] = "auto"
+                pod.table("engagements").update(e["id"], patch)
+            n_auto = sum(1 for e in claim if e.get("status") == "proposed")
+            return EngageClockResult(
+                action="post",
+                reason=f"{len(claim) - n_auto} approved, {n_auto} auto",
+                ids=[e["id"] for e in claim],
+            )
 
     # Finding: is one of their runs due?
     try:
@@ -139,7 +172,7 @@ async def engage_clock(ctx: FunctionContext, data: EngageClockInput) -> EngageCl
             reason=f"{run.get('label') or 'run'} at {run['time']}",
             run=run.get("key") or f"r{i + 1}",
             label=run.get("label") or f"Run {i + 1}",
-            size=max(1, min(int(run.get("size") or 10), MAX_BATCH)),
+            size=max(1, min(int(run.get("size") or 10), MAX_FIND)),
             since=since.isoformat(),
             hours=round((now - since).total_seconds() / 3600, 1),
         )

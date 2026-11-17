@@ -17,9 +17,12 @@
       "options": [
         "first",
         "followup",
-        "reply"
+        "reply",
+        "dm",
+        "connect"
       ],
-      "default": "first"
+      "default": "first",
+      "description": "first and followup: after a connection is accepted (follow-up skill). reply: answering their message. dm: a message to someone who showed interest in a thread. connect: the note on a connection request to someone who showed interest."
     },
     {
       "name": "body",
@@ -47,6 +50,12 @@
       "name": "error",
       "type": "TEXT",
       "max_length": 1000
+    },
+    {
+      "name": "why",
+      "type": "TEXT",
+      "max_length": 400,
+      "description": "One line the person reads before approving: what they said and why this message."
     }
   ],
   "config": {}

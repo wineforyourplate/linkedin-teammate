@@ -11,12 +11,14 @@ it has been running, and answers: may I do N more of this action, and how many
 page loads are left for everything.
 
 Call it before a batch, and log every action you take to `activity` so the next
-call sees it.
+call sees it. Comments are answered one at a time: ask before each one. When the
+answer has `wait_seconds`, wait that long and ask again (spacing, not a cap).
 
 It also says no to anyone who doesn't hold the browser (see browser_lock): pass
 the `owner` you took it as. Only one run is ever in the person's browser.
 """
 
+import random
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -24,10 +26,16 @@ from zoneinfo import ZoneInfo
 from lemma_sdk import FunctionContext
 from pydantic import BaseModel
 
-PAGE_LOADS_PER_DAY = 120
-LIKES_PER_DAY = 30  # across every skill
-COMMENTS_PER_DAY = 15  # only ones the person approved
-COMMENTS_CEILING = 20  # what the person can raise it to, never more
+PAGE_LOADS_PER_DAY = 250  # a 30-40 comment day with replies checks reads about 150-200 pages
+LIKES_PER_DAY = 60  # across every skill: likes on posts and reactions to replies
+LIKES_DEFAULT = 40
+COMMENTS_PER_DAY = 30  # comments and thread replies together; 30-40 a day held up for weeks
+COMMENTS_CEILING = 40  # what the person can raise it to, never more
+COMMENTS_PER_HOUR = 8  # never more than this in any 60 minutes
+COMMENT_GAP = 120  # seconds between two comments, always
+COMMENT_GAP_BUSY = 240  # seconds between comments once 4 went out in the last hour
+COMMENT_RAMP = [(3, 10), (7, 20)]  # a new teammate starts slow: 10 a day for 3 days, 20 to day 7
+ENGAGE_DMS = 5  # messages and connection notes to people who showed interest, per day
 CONNECT_PAUSE_AFTER = 20  # judge acceptance once this many invites are out
 
 
@@ -45,6 +53,7 @@ class AllowanceResult(BaseModel):
     page_loads_left: int
     day: int
     reason: str
+    wait_seconds: int = 0  # comments: wait this long, then ask again (spacing, not a cap)
 
 
 def _zone(name: str | None) -> ZoneInfo | timezone:
@@ -59,6 +68,11 @@ def _parse(value: Any) -> datetime | None:
         return None
     dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _minutes(seconds: int) -> str:
+    m = max(1, round(seconds / 60))
+    return f"{m} minute" if m == 1 else f"{m} minutes"
 
 
 def _pick(seq: list[int], index: int) -> int:
@@ -124,7 +138,7 @@ async def allowance(ctx: FunctionContext, data: AllowanceInput) -> AllowanceResu
     if action == "page_load":
         cap, used = PAGE_LOADS_PER_DAY, page_loads
     elif action == "like":
-        own = _pick(caps.get("likes") or [], day - 1) if isinstance(caps.get("likes"), list) else int(caps.get("likes") or LIKES_PER_DAY)
+        own = _pick(caps.get("likes") or [], day - 1) if isinstance(caps.get("likes"), list) else int(caps.get("likes") or LIKES_DEFAULT)
         cap, used = min(own, LIKES_PER_DAY), done("like")
     elif action == "view_profile":
         if data.skill == "warm_up":
@@ -134,6 +148,11 @@ async def allowance(ctx: FunctionContext, data: AllowanceInput) -> AllowanceResu
         used = done("view_profile", data.skill)
     elif action == "accept_invite":
         cap, used = int(caps.get("accept_invites") or 10), done("accept_invite")
+    elif action in ("invite", "message") and data.skill == "engage":
+        # Engagement sends only what the person approved: a DM or a connection note to someone who
+        # showed interest in a thread. One shared daily cap for both.
+        cap = int(caps.get("dms") or ENGAGE_DMS)
+        used = done("invite", "engage") + done("message", "engage")
     elif action == "invite":
         cap = _pick(caps.get("ramp") or [5], week)
         used = done("invite")
@@ -165,13 +184,41 @@ async def allowance(ctx: FunctionContext, data: AllowanceInput) -> AllowanceResu
     elif action == "profile_edit":
         cap, used = int(caps.get("edits_per_day") or 5), done("profile_edit")
     elif action == "comment":
-        # Only comments the person approved, posted one by one at a human pace.
-        cap, used = min(int(caps.get("comments") or COMMENTS_PER_DAY), COMMENTS_CEILING), done("comment")
+        # Comments and thread replies: ones the person approved, or, with auto-post on, the
+        # teammate's own drafts. One by one, spaced, never a burst.
+        cap = min(int(caps.get("comments") or COMMENTS_PER_DAY), COMMENTS_CEILING)
+        for until_day, ramp_cap in COMMENT_RAMP:
+            if day <= until_day:
+                cap = min(cap, ramp_cap)
+                break
+        used = done("comment")
+        hour = pod.query(
+            "select created_at from activity where action = 'comment' "
+            f"and created_at >= '{(now - timedelta(hours=1)).isoformat()}' order by created_at desc"
+        ).to_dict()["items"]
+        if len(hour) >= COMMENTS_PER_HOUR:
+            oldest = _parse(hour[-1].get("created_at")) or now
+            wait = max(60, int((oldest + timedelta(hours=1) - now).total_seconds()) + 5)
+            return AllowanceResult(
+                allowed=0, cap=cap, used=used, page_loads_left=left, day=day, wait_seconds=wait,
+                reason=f"{COMMENTS_PER_HOUR} comments in the last hour already; wait about {_minutes(wait)}",
+            )
+        if hour:
+            gap = COMMENT_GAP_BUSY if len(hour) >= 4 else COMMENT_GAP
+            last = _parse(hour[0].get("created_at")) or now
+            wait = int((last + timedelta(seconds=gap) - now).total_seconds())
+            if wait > 0 and cap - used > 0:
+                return AllowanceResult(
+                    allowed=0, cap=cap, used=used, page_loads_left=left, day=day, wait_seconds=wait + random.randint(5, 40),
+                    reason=f"too soon after the last comment; wait about {_minutes(wait)}",
+                )
     else:
         cap, used = 999, done(action)
 
     cap = int(cap * factor)
     allowed = max(0, min(data.count, cap - used))
+    if action == "comment":
+        allowed = min(allowed, 1)  # one at a time: ask again before the next one, for the spacing
     if action != "page_load" and left <= 0:
         allowed = 0
     reason = (

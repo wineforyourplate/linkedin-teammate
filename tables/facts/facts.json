@@ -14,9 +14,11 @@
         "topics",
         "voice",
         "brand",
-        "preferences"
+        "preferences",
+        "engage"
       ],
-      "required": true
+      "required": true,
+      "description": "engage: how they want comments and replies written and picked, learned from their edits, skips and words. Read before every comment."
     },
     {
       "name": "label",

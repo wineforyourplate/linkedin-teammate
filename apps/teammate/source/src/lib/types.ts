@@ -168,7 +168,8 @@ export interface VoiceOption {
 }
 
 export interface Fact extends Row {
-  section: 'you' | 'company' | 'audience' | 'topics' | 'voice' | 'brand' | 'preferences'
+  /** engage: their lessons for comments and replies, learned from their edits, skips and words. */
+  section: 'you' | 'company' | 'audience' | 'topics' | 'voice' | 'brand' | 'preferences' | 'engage'
   label: string
   value?: string | null
   kind?: 'fact' | 'question' | null
@@ -257,6 +258,10 @@ export interface Review extends Row {
   plan?: { draft_id?: string; title?: string; slot?: string }[] | null
   suggestion?: string | null
   status?: 'new' | 'approved' | 'dismissed' | null
+  /** weekly: the Monday 1:1. daily: the morning summary (`day`, `body` in markdown). */
+  kind?: 'weekly' | 'daily' | null
+  day?: string | null
+  body?: string | null
 }
 
 export interface Person extends Row {
@@ -266,19 +271,28 @@ export interface Person extends Row {
   profile_url?: string | null
   reason?: string | null
   score?: number | null
-  source?: 'engaged_with_you' | 'search' | 'niche_post' | 'export' | 'manual' | null
+  source?: 'engaged_with_you' | 'search' | 'niche_post' | 'export' | 'manual' | 'replied' | null
   stage: 'found' | 'approved' | 'skipped' | 'invited' | 'accepted' | 'messaged' | 'replied' | 'withdrawn'
   invite_note?: string | null
   invited_at?: string | null
   accepted_at?: string | null
   last_message_at?: string | null
   next_step?: string | null
+  /** The Interested list: why they're on it. */
+  signal?: 'hot' | 'question' | 'warm' | 'big' | null
+  said?: string | null
+  thread_url?: string | null
+  signal_at?: string | null
+  followers?: number | null
+  degree?: string | null
 }
 
 export interface Message extends Row {
   person_id?: string | null
-  kind?: 'first' | 'followup' | 'reply' | null
+  /** dm and connect: to someone on the Interested list. */
+  kind?: 'first' | 'followup' | 'reply' | 'dm' | 'connect' | null
   body: string
+  why?: string | null
   status: 'draft' | 'approved' | 'sent' | 'skipped' | 'failed'
   sent_at?: string | null
   error?: string | null
@@ -300,7 +314,12 @@ export interface Engagement extends Row {
   comment_url?: string | null
   error?: string | null
   method?: string | null
-  posted_via?: 'by_hand' | 'teammate' | 'assistant' | null
+  posted_via?: 'by_hand' | 'teammate' | 'assistant' | 'auto' | null
+  /** What the teammate first drafted, before their edits. */
+  first_draft?: string | null
+  signal?: 'hot' | 'question' | 'pushback' | 'agree' | 'ack' | 'ignore' | null
+  lane?: string | null
+  checked_visible?: boolean | null
   experiment?: string | null
   batch?: string | null
   story?: string | null

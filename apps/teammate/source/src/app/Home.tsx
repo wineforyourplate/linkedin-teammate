@@ -12,7 +12,7 @@ import { useHelp, type Help } from '@/lib/health'
 import type { AppView } from './AppShell'
 import type { ComposeStart } from './Composer'
 import { useTenMinutes } from './TenMinutes'
-import { NextPostTile, Receipt, ResultsTile, RhythmTile, SetupTile, WeekReview, WriteTile, useSetup } from './HomeParts'
+import { DailySummary, NextPostTile, Receipt, ResultsTile, RhythmTile, SetupTile, WeekReview, WriteTile, useSetup } from './HomeParts'
 
 /* Home is today, as blocks you can see: your N minutes with a ring that fills as you go, the
    people in your world, then one block per kind of work (posts to approve, comments to post,
@@ -100,6 +100,7 @@ export function Home({ go, compose, startSession }: { go: Go; compose: (s: Compo
       )}
 
       <Receipt />
+      <DailySummary />
       <WeekReview />
       {dayOne ? <div className="[&>section]:h-full"><WorkingOn compact go={(v) => go(v === 'today' ? 'home' : v === 'you' ? 'personal' : (v as AppView))} /></div> : null}
 

@@ -40,6 +40,27 @@
         "dismissed"
       ],
       "default": "new"
+    },
+    {
+      "name": "kind",
+      "type": "ENUM",
+      "options": [
+        "weekly",
+        "daily"
+      ],
+      "default": "weekly"
+    },
+    {
+      "name": "day",
+      "type": "TEXT",
+      "max_length": 10,
+      "description": "Daily summaries: the day it covers, YYYY-MM-DD on their clock."
+    },
+    {
+      "name": "body",
+      "type": "TEXT",
+      "max_length": 8000,
+      "description": "Daily summaries: the summary itself, short markdown."
     }
   ]
 }

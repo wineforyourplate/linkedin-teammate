@@ -26,7 +26,8 @@ SKILLS: dict[str, dict[str, Any]] = {
             "accept_invites": 10,
         },
     },
-    "engage": {"approval": "each", "caps": {"posts_per_day": 10, "likes": 20, "comments": 10}},
+    # approval "each": auto-post off, every comment waits for them. "within_limits": auto-post on.
+    "engage": {"approval": "each", "caps": {"comments": 30, "likes": 40, "dms": 5}},
     "find_people": {"approval": "each", "caps": {"profiles_per_day": 25, "list_size": 50}},
     "connect": {
         "approval": "each",

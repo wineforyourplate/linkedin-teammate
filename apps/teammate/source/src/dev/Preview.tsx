@@ -12,7 +12,7 @@ import { Today } from '@/views/Today'
 import { Posts } from '@/views/Posts'
 import { Engage } from '@/views/Engage'
 import { You } from '@/views/You'
-import type { Draft, Engagement, Person, Topic } from '@/lib/types'
+import type { Draft, Engagement, Message, Person, Review, Topic } from '@/lib/types'
 import { Composer } from '@/app/Composer'
 import { pinLinkedinLink, type LinkState } from '@/lib/connect'
 
@@ -75,13 +75,28 @@ const HELD_DRAFT: Draft = { id: 'dh1', status: 'failed', format: 'text', title: 
 const DEMO_ENG: Engagement[] = [
   { id: 'de1', post_url: 'https://example.com/post/3', author_name: 'Priya Nair', author_headline: 'COO, 40-person agency', excerpt: 'Hot take: most “AI agents” are cron jobs with a chat box. Change my mind.', reason: 'A decider in your world, 40 minutes ago, 12 comments so far', comment_draft: 'Half agree. The cron job is fine. What’s missing is the review step: we hold every agent action in a queue for one human tap, and that one change took trust from zero to daily use.', status: 'proposed', posted_at: hrs(-0.7), author_followers: 34000, post_reactions: 140, post_comments: 12 },
   { id: 'de2', post_url: 'https://example.com/post/4', author_name: 'Jon Ellis', author_headline: 'Shipping an AI inbox', excerpt: 'We cut our support backlog by 60% with one agent. Here is the boring part nobody shows.', reason: 'A builder you watch, posted 2 hours ago', comment_draft: 'The boring part is the whole product. Which step did you keep a human on, and did it move after the first month?', status: 'proposed', posted_at: hrs(-2), author_followers: 18000, post_reactions: 210, post_comments: 31 },
+  { id: 'de3', post_url: 'https://example.com/post/5', author_name: 'Kofi Mensah', author_headline: 'Founder, field-service software', excerpt: 'We need someone to automate our client onboarding. Spreadsheets everywhere. Who has done this well?', reason: 'An ask, 3 hours old: he names the spreadsheet step, which is what you fix', lane: 'ask', comment_draft: 'The spreadsheet step is the one to kill first: every new client gets retyped twice. We run onboarding as one checklist the client fills in, and the team only reviews. Happy to show you the setup, DMs open.', status: 'proposed', posted_at: hrs(-3), author_followers: 4100, post_reactions: 9, post_comments: 6 },
+  { id: 'de4', post_url: 'https://example.com/post/c0', author_name: 'Lena Ortiz', author_headline: 'Small-team operations', method: 'thread', signal: 'hot', lane: 'reply', reason: 'Lena Ortiz replied: "this is exactly our problem, how do I try it?"', comment_draft: 'Easiest start is the onboarding checklist template, it takes about 10 mins to set up. Sent you a note with the link.', status: 'proposed', posted_at: hrs(-1), author_followers: 96000 },
   ...Array.from({ length: 6 }, (_, i): Engagement => ({ id: `dc${i}`, post_url: `https://example.com/post/c${i}`, author_name: ['Lena Ortiz', 'Daniel Kim', 'Sofia Russo', 'Kofi Mensah', 'Mara Lopes', 'Noah Baker'][i], status: 'commented', done_at: hrs(-20 - i * 9), author_followers: [96000, 12000, 9400, 61000, 8200, 26000][i], outcome: { likes: [14, 9, 6, 22, 4, 11][i], replies: [2, 1, 1, 3, 0, 1][i], author_replied: [true, true, false, true, false, true][i], impressions: [2100, 800, 640, 3900, 300, 1200][i], note: i === 1 ? 'Replied, then viewed your profile' : undefined } })),
 ]
 const DEMO_PEOPLE = [
   { id: 'dp1', name: 'Priya Nair', headline: 'COO, 40-person agency', reason: 'Replied to your comment twice this week', score: 9, source: 'engaged_with_you', stage: 'found' },
   { id: 'dp2', name: 'Daniel Kim', headline: 'Head of Ops at a fintech', reason: 'Liked your post, then viewed your profile', score: 8, source: 'engaged_with_you', stage: 'found' },
   { id: 'dp3', name: 'Mara Lopes', headline: 'Founder, logistics startup', reason: 'Asked the question your product answers', score: 7, source: 'niche_post', stage: 'found' },
+  { id: 'dp4', name: 'Lena Ortiz', headline: 'Small-team operations', source: 'replied', stage: 'found', signal: 'hot', said: 'this is exactly our problem, how do I try it?', thread_url: 'https://example.com/post/c0', signal_at: hrs(-1), followers: 96000, degree: '2nd', next_step: 'Reply in the thread, then the connection request' },
+  { id: 'dp5', name: 'Sofia Russo', headline: 'RevOps lead', source: 'replied', stage: 'found', signal: 'question', said: 'how do you stop the review queue from piling up on Mondays?', thread_url: 'https://example.com/post/c2', signal_at: hrs(-5), degree: '1st', next_step: 'Answered in the thread at 11:05. The DM is waiting for your OK' },
 ] as Person[]
+const DEMO_MESSAGES: Message[] = [
+  { id: 'dm1', person_id: 'dp4', kind: 'connect', status: 'draft', why: 'She asked how to try it, under your comment on her post.', body: 'Hi Lena, glad the review-queue idea landed. The onboarding checklist template is the quickest way to try it, happy to set it up with you.' },
+  { id: 'dm2', person_id: 'dp5', kind: 'dm', status: 'draft', why: 'She asked about Monday pile-ups; your answer is live in the thread.', body: 'hey Sofia - hope the answer on monday pile-ups helped. if you want to see it running, the review queue template is the place to start.' },
+]
+const DEMO_REVIEWS: Review[] = [
+  { id: 'dr1', kind: 'daily', status: 'new', day: new Date(Date.now() - 86400000).toISOString().slice(0, 10), summary: '31 comments, 5 author replies, and 2 people want to try it', body: '## Status\n- 31 comments yesterday, 12 of them on their own (auto-post). All 31 showed after posting.\n- 5 authors replied: Lena Ortiz, Daniel Kim and 3 more.\n\n## People\n- **Wants to try it:** Lena Ortiz said \u201cthis is exactly our problem, how do I try it?\u201d. I answered in the thread; a connection request is waiting for your OK.\n- **Asked a question:** Sofia Russo asked about Monday pile-ups. Answered at 11:05; a DM is waiting for your OK.\n\n## Learned from your edits\n- Keep comments to two sentences.\n\n## For you\n1. Approve 1 DM and 1 connection request in People.', created_at: hrs(-2), updated_at: hrs(-2) },
+]
+const DEMO_LESSONS: Fact[] = [
+  { id: 'dl1', section: 'engage', kind: 'fact', label: 'Keep comments to two sentences', value: 'Where: topic comments. Why: you cut the third line from 4 comments this week.', source: 'your edits, 16 Nov' },
+  { id: 'dl2', section: 'engage', kind: 'fact', label: 'Never mention pricing in a public reply', value: 'Where: every comment and reply. Pricing goes in a DM.', source: 'you told me', locked: true },
+]
 
 /** A sample world: invented names, a few per ring, two suggestions and one who left. */
 const W: [string, WorldPerson['bucket'], number, string, string?][] = [
@@ -177,6 +192,7 @@ export function Preview() {
         { id: 'f4', section: 'company', kind: 'fact', label: 'What it does', value: 'Northwind makes AI teammates for small teams.', source: 'your website' },
         { id: 'f5', section: 'company', kind: 'question', label: 'Can I name customers in posts?', options: ['Ask me each time', 'Never'] },
       ] as Fact[]) : []),
+      ...(DEMO ? DEMO_LESSONS : []),
     ],
   )
   const log = (...a: unknown[]) => console.info('[preview]', ...a)
@@ -187,16 +203,16 @@ export function Preview() {
     facts,
     skills: [
       { id: 's1', key: 'post', state: 'on', started_at: new Date(Date.now() - 3 * 60000).toISOString() },
-      { id: 's3', key: 'engage', state: 'on', started_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+      { id: 's3', key: 'engage', state: 'on', approval: q.get('auto') === '1' ? 'within_limits' : 'each', started_at: new Date(Date.now() - 2 * 86400000).toISOString() },
       { id: 's2', key: 'optimize_profile', state: 'on', started_at: new Date(Date.now() - 20 * 60000).toISOString(), settings: q.get('scored') === '1' ? { score: 58, changes: [{}, {}, {}] } : {} },
     ],
     recommendations: [],
     drafts,
     people: DEMO ? DEMO_PEOPLE : [],
-    messages: [],
+    messages: DEMO ? DEMO_MESSAGES : [],
     engagements: DEMO ? DEMO_ENG : ENGAGEMENTS,
     topics,
-    reviews: [],
+    reviews: DEMO ? DEMO_REVIEWS : [],
     world,
     activity: [
       { id: 'a1', skill: 'learning', action: 'read', detail: 'Reading northwind.ai: pricing and customers', created_at: new Date(Date.now() - 60000).toISOString() },

@@ -1,8 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { motion } from 'motion/react'
-import { Briefcase, CalendarClock, ChevronLeft, ChevronRight, ExternalLink, Flame, HelpCircle, Link2, Mic2, Orbit, Palette, Search, Signpost, Smile, UserRound } from 'lucide-react'
+import { Briefcase, CalendarClock, ChevronLeft, ChevronRight, ExternalLink, Flame, HelpCircle, Link2, Lock, MessagesSquare, Mic2, Orbit, Palette, Search, Signpost, Smile, UserRound } from 'lucide-react'
 import { usePod } from '@/lib/data'
-import { useChatContext } from '@/lib/chat'
+import { useChat, useChatContext } from '@/lib/chat'
 import type { Fact } from '@/lib/types'
 import { TimeZonePicker, describe } from '@/components/TimeZonePicker'
 import { Connections, Question, Rhythm, Rows, WritingStyle } from '@/views/You'
@@ -22,7 +22,7 @@ import type { AppView } from './AppShell'
    time, each at its own address (#/personal/voice). Desktop shows the list beside the
    page; phones show the list first, then the page with a way back. */
 
-type Key = 'profile' | 'world' | 'destination' | 'voice' | 'tone' | 'brand' | 'schedule' | 'connections' | 'about' | 'questions'
+type Key = 'profile' | 'world' | 'destination' | 'voice' | 'comments' | 'tone' | 'brand' | 'schedule' | 'connections' | 'about' | 'questions'
 
 const TONES = [
   { key: 'polite', label: 'Polite', line: 'Kind, and starts with what works', icon: Smile },
@@ -40,6 +40,7 @@ export function Personalize({ go }: { go: (v: AppView, anchor?: string) => void 
   const voice = of('voice')
   const picked = voice.find((f) => f.source === 'you picked it')
   const rules = voice.filter((f) => f !== picked && !/^A post you/i.test(f.label))
+  const lessons = of('engage')
   const questions = facts.filter((f) => f.kind === 'question' && !(f.options || []).some((o) => typeof o === 'object'))
   const profileSkill = pod.skills.find((s) => s.key === 'optimize_profile')
   const fixes = (((profileSkill?.settings as { changes?: { applied?: boolean }[] } | null)?.changes) || []).some((c) => !c.applied)
@@ -62,6 +63,7 @@ export function Personalize({ go }: { go: (v: AppView, anchor?: string) => void 
     { key: 'world', label: 'Your world', icon: Orbit, summary: inWorld ? [`${inWorld} ${inWorld === 1 ? 'person' : 'people'} I watch for you`, joined ? `${joined} new this week` : null, toAdd ? `${toAdd} to add` : null].filter(Boolean).join(' · ') : 'The people whose posts I watch for you' },
     { key: 'destination', label: 'Where people go', icon: Signpost, summary: dest ? (dest.kind === 'none' ? 'Nothing yet: posts end on a question' : `${dest.title}${p?.destination?.link ? ` · ${p.destination.link.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}` : ''}`) : 'Where your posts send people' },
     { key: 'voice', label: 'Voice', icon: Mic2, summary: picked ? `Writing as ${picked.value?.split(':')[0]}` : rules.length ? `${rules.length} rules from your posts` : 'Default style until you import posts' },
+    { key: 'comments', label: 'How I comment', icon: MessagesSquare, summary: lessons.length ? `${lessons.length} ${lessons.length === 1 ? 'lesson' : 'lessons'} from your edits and words` : 'What I learn from your edits' },
     { key: 'tone', label: 'Tone', icon: Smile, summary: TONES.find((t) => t.key === (p?.tone || 'candid'))?.label || 'Candid' },
     { key: 'brand', label: 'Brand kit', icon: Palette, summary: p?.brand ? [p.brand.logo || p.brand.wordmark || p.brand.logo_dark ? 'Logo' : null, p.brand.fonts?.heading || 'Inter Tight', `${p.brand.style === 'light' ? 'Light' : p.brand.style === 'brand' ? 'Brand colour' : 'Dark'} slides`].filter(Boolean).join(' · ') : 'Your photo, logo, colours and fonts for carousels' },
     { key: 'schedule', label: 'Schedule', icon: CalendarClock, summary: `${p?.posts_per_week || 2} posts a week around ${p?.posting_time || '08:30'}` },
@@ -112,6 +114,8 @@ export function Personalize({ go }: { go: (v: AppView, anchor?: string) => void 
             <WritingStyle rules={rules} picked={picked} />
           </Block>
         )
+      case 'comments':
+        return <Lessons lessons={lessons} />
       case 'tone':
         return (
           <Block title="How honest should I be?" sub="About your profile, drafts and ideas.">
@@ -212,6 +216,38 @@ export function Personalize({ go }: { go: (v: AppView, anchor?: string) => void 
         </motion.div>
       </div>
     </div>
+  )
+}
+
+/** Their lessons for comments and replies (facts, section engage): what the teammate learned from
+    their edits, skips and words. It reads these before every comment; theirs beat its defaults. */
+function Lessons({ lessons }: { lessons: Fact[] }) {
+  const pod = usePod()
+  const chat = useChat()
+  const sorted = [...lessons].sort((a, b) => Number(!!b.locked) - Number(!!a.locked) || new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime())
+  return (
+    <Block title="How I comment for you" sub="What I learned from your edits, your skips and what you told me. I read these before every comment and reply; they beat my defaults.">
+      {sorted.length ? (
+        <ul className="flex flex-col divide-y divide-line">
+          {sorted.map((f) => (
+            <li key={f.id} className="flex items-start gap-3 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] text-ink" style={{ fontWeight: 480 }}>{f.locked ? <Lock className="mr-1.5 inline size-3.5 align-[-2px] text-slate" aria-label="You said this" /> : null}{f.label}</p>
+                {f.value ? <p className="mt-1 text-[13.5px] leading-relaxed text-ink-2">{f.value}</p> : null}
+                {f.source ? <p className="mt-1 text-[12px] text-slate">{f.source}</p> : null}
+              </div>
+              <span className="flex shrink-0 gap-1">
+                <Button size="sm" variant="ghost" onClick={() => void chat.send(`I want to change this lesson: "${f.label}"`, { fresh: true, context: `Lesson ${f.id}` })}>Change</Button>
+                <Button size="sm" variant="ghost" onClick={() => void pod.remove('facts', f.id)} aria-label={`Forget: ${f.label}`}>Forget</Button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[14px] text-ink-2">Nothing yet. When you edit a comment before approving it, skip a few of the same kind, or tell me how you like them, I write the lesson here.</p>
+      )}
+      <Button className="mt-3" onClick={() => void chat.send('Here’s how I want my comments written: ', { fresh: true, context: 'How I comment' })}>Tell me how you like them</Button>
+    </Block>
   )
 }
 

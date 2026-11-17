@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useCurrentUser, useLiveRecords } from 'lemma-sdk/react'
 import { lemmaClient } from '@/lemma-client'
+import { ensureMySchedules } from './schedules'
 import type { Activity, Draft, Engagement, Fact, Message, Person, Profile, Recommendation, Review, Skill, Topic, WorldPerson } from './types'
 
 /* Every table here is private to the signed-in person (RLS), so each list is only
@@ -91,6 +92,20 @@ export function PodProvider({ children }: { children: ReactNode }) {
   const topics = useTable<Topic>('topics', { limit: 50, sort: [{ field: 'created_at', direction: 'asc' }] })
   const reviews = useTable<Review>('reviews', { limit: 8, sort: desc('created_at') })
   const world = useTable<WorldPerson>('world', { limit: 400, sort: [{ field: 'created_at', direction: 'asc' }] })
+
+  // Their own clock: once onboarding is done, give them their own copy of every timed schedule
+  // (see lib/schedules.ts). Re-checked when their timezone changes.
+  const me = (user as unknown as { id?: string } | null)?.id
+  const done = profile.rows[0]?.onboarding_step === 'done'
+  const tz = profile.rows[0]?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+  useEffect(() => {
+    if (!booted || !me || !done || !tz) return
+    // `npm run dev` talks to a real pod: never set up schedules from a dev build unless asked (?clock).
+    if (import.meta.env.DEV && !new URLSearchParams(location.search).has('clock')) return
+    ensureMySchedules(me, tz)
+      .then((note) => console.info('[schedules]', note))
+      .catch((e: unknown) => console.warn('[schedules] could not set up your clock:', e instanceof Error ? e.message : e))
+  }, [booted, me, done, tz])
 
   // setup_me may create the rows after the first fetch: fetch once more when it lands.
   const refreshProfile = profile.refresh
