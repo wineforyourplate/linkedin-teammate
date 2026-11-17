@@ -12,8 +12,11 @@ Short, honest, useful. Like a good hire's Monday note, not a dashboard.
    `linkedin-browser`; a few page loads only). Write them to the draft's `reactions`, `comments` and
    `impressions`.
 2. **What happened:** posts published, people found, invited, accepted (and the rate), messages sent,
-   replies, warm-up day, and the comment scorecard (`engage` §8): comments made, how many got a like
-   or a reply, author replies, and the method and author size that worked best.
+   replies, warm-up day, and the comment scorecard (`engage` §9): comments made (and how many went
+   out on auto-post), how many showed after posting, how many got a like or a reply, author
+   replies, the lane and author size that worked best, and the Interested list: who showed
+   interest this week and where each conversation stands. Name the lessons you learned from their
+   edits this week (`facts` with `section: "engage"`), and any lesson from results (`engage` §9).
    Lead with what they count first (`profile.kpi_order`: profile visits, link clicks, impressions,
    followers), in that order, against their starting line (`profile.stats`) when you have it. Say
    who joined or left their world (`world` rows decided this week) and how many suggestions wait.
@@ -41,7 +44,8 @@ week's plan in one go):
   `ready` draft. Write drafts first if there aren't enough ready ones. Only `ready` drafts: approving
   the plan approves exactly these.
 - Compare with their own earlier weeks only. Never shame a quiet week: say what's planned instead.
-- Mark earlier `new` reviews `dismissed` so only this week's shows.
+- Mark earlier `new` weekly reviews (`kind: "weekly"`, or no kind) `dismissed` so only this week's
+  shows. Write `kind: "weekly"`. Never touch the daily summaries.
 
 Send it with `message_user`, 6–10 lines, plain text, no tables:
 

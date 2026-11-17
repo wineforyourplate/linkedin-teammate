@@ -89,6 +89,10 @@ Everything here is for **writes**: likes, comments, invites, messages, profile e
   0.4–1.5 s apart, with an occasional longer pause. Read it back before sending.
 - **One tab, one thing at a time.** Between two people or two posts, wait 30–120 s and drift: scroll
   the feed a little rather than jumping straight to the next target.
+- **Comments are spaced by the allowance.** At least 2 minutes between two comments, 4 once 4 went
+  out in the last hour, never more than 8 in any hour. `function_allowance` answers with
+  `wait_seconds` when it's too soon: wait that long with your wait tool, then ask again. Never a
+  burst, even when a batch is waiting.
 - **Working hours only.** Act only inside `profile.working_hours` in `profile.timezone`. Outside them,
   postpone.
 - **Spread the day.** A session does part of the day's allowance. Leave the rest for the next session.
@@ -96,10 +100,12 @@ Everything here is for **writes**: likes, comments, invites, messages, profile e
 ## 5. Things you never do
 
 - Never sign in, type a password or solve a captcha.
-- Never post a comment unless the person approved that exact text (the engage queue, `status:
-  posting`). Then follow `engage` → Posting the approved batch.
+- Never post a comment except through the engage queue (`status: posting`), following `engage` →
+  Posting: either the person approved that exact text, or they switched auto-post on (the engage
+  skill's `approval` is `within_limits`) and it's your own draft that passed the self-check.
 - Never send a connection request or a message that wasn't approved, unless the skill's approval mode
-  is `within_limits` **and** the person chose that.
+  is `within_limits` **and** the person chose that. DMs and connection notes to people who replied to
+  them (engage) always wait for their approval, auto-post or not.
 - Never act on a person who said no, or someone already contacted in the last 3 weeks.
 - Never exceed `allowed`, even when it looks harmless.
 - Never type test or placeholder text ("P1", "test", "hello") into any LinkedIn text box, not even to
@@ -131,7 +137,8 @@ Navigate by URL wherever you can (`/in/<slug>/`, `/mynetwork/invitation-manager/
 ## 8. Stop rules for writes
 
 Stop the whole run (not just the item) on any of these:
-- a captcha, identity check or "unusual activity" page;
+- a captcha, identity check, "unusual activity" page, restriction notice or login page;
+- a comment, reply or message that was sent but doesn't show after a reload;
 - "You've reached the weekly invitation limit";
 - a forced "enter their email to connect" step;
 - two "request not allowed" errors in a row (one means that person restricts invites, so skip them).

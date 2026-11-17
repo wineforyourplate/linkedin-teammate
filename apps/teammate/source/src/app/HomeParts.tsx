@@ -7,6 +7,7 @@ import { fmtSlot, nextSlot } from '@/lib/time'
 import { latestResult, useLastVisit, useReceipt, useRhythm, vsUsual } from '@/lib/session'
 import type { Review } from '@/lib/types'
 import { Button } from '@/components/ui'
+import { renderMarkdown } from '@/lib/markdown'
 import { cn } from '@/lib/utils'
 import type { AppView } from './AppShell'
 import type { ComposeStart } from './Composer'
@@ -194,13 +195,42 @@ export function SetupTile({ go, startSession }: { go: Go; startSession: () => vo
   )
 }
 
+// ── Every morning: yesterday, in one minute ──────────────────────────────────
+
+/** The daily summary the teammate writes each morning (reviews, kind daily): yesterday's comments,
+    who replied, who showed interest, what it learned and what waits for them. Folded to its
+    headline; open it for the rest. Hidden once dismissed or two days old. */
+export function DailySummary() {
+  const pod = usePod()
+  const r = pod.reviews.find((x) => x.kind === 'daily' && x.status === 'new' && Date.now() - new Date(x.updated_at || x.created_at || 0).getTime() < 2 * 86400e3)
+  const [open, setOpen] = useState(false)
+  if (!r) return null
+  return (
+    <section className="rounded-3xl bg-surface p-6 ring-1 ring-line" aria-labelledby="daily-h">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[12px] uppercase tracking-[0.06em] text-ink-2">Yesterday{r.day ? `, ${new Date(`${r.day}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}` : ''}</p>
+          <h2 id="daily-h" className="mt-1 text-[20px] leading-tight text-ink" style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>{r.summary?.split('\n')[0] || 'Your daily summary'}</h2>
+        </div>
+        <button type="button" onClick={() => void pod.update('reviews', r.id, { status: 'dismissed' })} className="grid size-9 shrink-0 place-items-center rounded-full text-slate hover:bg-primary/8" aria-label="Dismiss the daily summary"><X className="size-4" /></button>
+      </div>
+      {open && r.body ? <div className="chat-md mt-3 text-[14px] leading-relaxed text-ink-2" dangerouslySetInnerHTML={{ __html: renderMarkdown(r.body) }} /> : null}
+      {r.body ? (
+        <button type="button" aria-expanded={open} onClick={() => setOpen((v) => !v)} className="mt-3 inline-flex items-center gap-1.5 text-[14px] text-ink hover:underline">
+          {open ? 'Show less' : 'Read it'} <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} />
+        </button>
+      ) : null}
+    </section>
+  )
+}
+
 // ── Monday: your week ─────────────────────────────────────────────────────────
 
 export function WeekReview() {
   const pod = usePod()
   const chat = useChat()
   const tz = pod.profile?.timezone
-  const r = pod.reviews.find((x) => x.status === 'new' && Date.now() - new Date(x.created_at || 0).getTime() < 6 * 86400e3)
+  const r = pod.reviews.find((x) => x.status === 'new' && x.kind !== 'daily' && Date.now() - new Date(x.created_at || 0).getTime() < 6 * 86400e3)
   const [busy, setBusy] = useState(false)
   if (!r) return null
   const plan = (r.plan || []).filter((x) => x.title || x.draft_id)

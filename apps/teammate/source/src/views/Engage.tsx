@@ -21,10 +21,12 @@ import { suggested, watching } from '@/lib/world'
 const OPEN = new Set(['proposed', 'liked', 'approved', 'posting', 'failed'])
 export const DEFAULT_RUNS: EngageRun[] = [
   { key: 'r1', label: 'Morning', time: '09:30', size: 10, on: false },
-  { key: 'r2', label: 'Afternoon', time: '14:00', size: 5, on: false },
-  { key: 'r3', label: 'Evening', time: '19:00', size: 5, on: false },
+  { key: 'r2', label: 'Afternoon', time: '14:00', size: 10, on: false },
+  { key: 'r3', label: 'Evening', time: '19:00', size: 10, on: false },
 ]
-const CEILING = { comments: 20, likes: 30, pages: 120 }
+// The same ceilings function_allowance enforces. 30 a day is the default: it held up for weeks.
+const CEILING = { comments: 40, likes: 60, pages: 250 }
+const DEFAULT_CAPS = { comments: 30, likes: 40 }
 type Mode = 'approve' | 'copy'
 type Replies = { on?: boolean; every_hours?: number; last_run_at?: string | null }
 type Settings = { runs?: EngageRun[]; mode?: Mode; replies?: Replies; [k: string]: unknown }
@@ -34,7 +36,10 @@ export function runsOf(s?: Skill | null): EngageRun[] {
   const saved = settingsOf(s).runs || []
   return DEFAULT_RUNS.map((d) => ({ ...d, ...(saved.find((r) => r.key === d.key) || {}) }))
 }
-export const modeOf = (s?: Skill | null): Mode => (settingsOf(s).mode === 'copy' ? 'copy' : 'approve')
+export const modeOf = (s?: Skill | null): Mode => (s?.approval !== 'within_limits' && settingsOf(s).mode === 'copy' ? 'copy' : 'approve')
+/** Auto-post: the teammate posts its own drafts within limits. Off by default. */
+export const autoOf = (s?: Skill | null) => s?.approval === 'within_limits'
+const SIGNAL: Record<string, string> = { hot: 'Wants to try it', question: 'Asked you something', pushback: 'Pushed back', agree: 'Added a point', ack: 'Said thanks' }
 const engaged = (e: Engagement) => (e.outcome?.likes || 0) > 0 || (e.outcome?.replies || 0) > 0
 const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : '')
 const MODEL: Record<string, string> = { claude: 'Claude', teammate: 'DeepSeek' }
@@ -66,6 +71,7 @@ export function Engage() {
   const on = skill?.state === 'on' || skill?.state === 'needs_you'
   const signedIn = profile?.browser_status === 'signed_in'
   const mode = modeOf(skill)
+  const auto = autoOf(skill)
   const [finding, setFinding] = useState(false)
   const open = engagements
     .filter((e) => OPEN.has(e.status) && e.comment_draft)
@@ -107,11 +113,13 @@ export function Engage() {
         </Card>
       ) : null}
 
+      {on && skill ? <AutoPostCard skill={skill} /> : null}
+
       {waiting.length ? (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Eyebrow>Ready for you</Eyebrow>
-            <p className="mt-1 text-[14px] text-ink-2">{waiting.length} to go{directed ? `, ${directed} of them replies to people talking to you` : ''}. Edit any, skip any.</p>
+            <Eyebrow>{auto ? 'Going out on their own' : 'Ready for you'}</Eyebrow>
+            <p className="mt-1 text-[14px] text-ink-2">{waiting.length} drafted{directed ? `, ${directed} of them replies to people talking to you` : ''}. {auto ? 'Each waits 10 minutes, then goes out, spaced out. Edit or skip any before then.' : 'Edit any, skip any.'}</p>
           </div>
           {mode === 'approve' ? <Button variant="primary" onClick={approveAll}><Check className="size-4" /> Approve all {waiting.length}</Button> : null}
         </div>
@@ -136,12 +144,44 @@ export function Engage() {
           <Runs skill={skill} />
           <div className="grid gap-4 sm:grid-cols-2">
             <Limits skill={skill} activity={pod.activity} />
-            <ModeCard skill={skill} />
+            {auto ? null : <ModeCard skill={skill} />}
           </div>
           <WorldCard />
         </section>
       ) : null}
     </div>
+  )
+}
+
+/** Auto-post: off, the teammate only drafts and nothing goes out without them. On, it posts its own
+    comments and replies within the limits, each after a 10-minute hold so they can skip or edit it.
+    DMs and connection requests always wait for them. */
+function AutoPostCard({ skill }: { skill: Skill }) {
+  const pod = usePod()
+  const auto = autoOf(skill)
+  const caps = (skill.caps || {}) as { comments?: number }
+  const cap = Math.min(caps.comments ?? DEFAULT_CAPS.comments, CEILING.comments)
+  const today = new Date().toDateString()
+  const autoToday = pod.engagements.filter((e) => e.posted_via === 'auto' && e.done_at && new Date(e.done_at).toDateString() === today).length
+  const set = (v: boolean) =>
+    void pod.update('skills', skill.id, { approval: v ? 'within_limits' : 'each', settings: { ...settingsOf(skill), ...(v ? { mode: 'approve' } : {}) } })
+  return (
+    <Card tint={auto} className="mb-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[16px] text-ink" style={{ fontWeight: 520 }}>Auto-post {auto ? 'is on' : 'is off'}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-ink-2">
+            {auto
+              ? `I post my own comments and replies, up to ${cap} a day, at least 2 minutes apart. Each waits 10 minutes first, so you can edit or skip it. I check every one after posting and stop at the first warning.`
+              : 'I only draft. Nothing goes out until you approve it.'}
+          </p>
+          <p className="mt-2 text-[12.5px] text-slate">
+            {auto ? `${autoToday} posted on their own today. ` : ''}Messages and connection requests always wait for your OK.
+          </p>
+        </div>
+        <Switch checked={auto} onChange={set} label="Auto-post" />
+      </div>
+    </Card>
   )
 }
 
@@ -211,8 +251,10 @@ function Runs({ skill }: { skill: Skill }) {
 function Limits({ skill, activity }: { skill: Skill; activity: Activity[] }) {
   const pod = usePod()
   const caps = (skill.caps || {}) as { comments?: number; likes?: number }
-  const comments = Math.min(caps.comments ?? 15, CEILING.comments)
-  const likes = Math.min(caps.likes ?? 30, CEILING.likes)
+  const comments = Math.min(caps.comments ?? DEFAULT_CAPS.comments, CEILING.comments)
+  const likes = Math.min(caps.likes ?? DEFAULT_CAPS.likes, CEILING.likes)
+  const day = skill.started_at ? Math.floor((Date.now() - new Date(skill.started_at).getTime()) / 86400e3) + 1 : 1
+  const ramp = day <= 3 ? 10 : day <= 7 ? 20 : null
   const today = new Date().toDateString()
   const todays = activity.filter((a) => a.created_at && new Date(a.created_at).toDateString() === today)
   const used = {
@@ -236,10 +278,11 @@ function Limits({ skill, activity }: { skill: Skill; activity: Activity[] }) {
     <Card>
       <p className="text-[16px] text-ink" style={{ fontWeight: 520 }}>Daily limits</p>
       <ul className="mt-2 flex flex-col divide-y divide-line">
-        {row('Comments', comments, [5, 10, 15, 20], 'comments', used.comments)}
-        {row('Likes', likes, [10, 15, 20, 30], 'likes', used.likes)}
+        {row('Comments and replies', comments, [10, 20, 30, 40], 'comments', used.comments)}
+        {row('Likes', likes, [20, 30, 40, 60], 'likes', used.likes)}
       </ul>
-      <p className="mt-2 text-[12.5px] text-slate">Pages opened today: {used.pages} of {CEILING.pages}, shared by everything I do on LinkedIn. I stop at the first warning.</p>
+      {ramp && comments > ramp ? <p className="mt-2 text-[12.5px] text-ink-2">Day {day}: I start slow, at {ramp} a day{day <= 3 ? ' for the first 3 days, then 20 to day 7' : ' to day 7'}, then {comments}.</p> : null}
+      <p className="mt-2 text-[12.5px] text-slate">At least 2 minutes between comments, 4 once the hour gets busy, never more than 8 in an hour. Pages opened today: {used.pages} of {CEILING.pages}. I stop at the first warning.</p>
     </Card>
   )
 }
@@ -376,7 +419,8 @@ export function ReplyCard({ e, onDone, flat = false }: { e: Engagement; onDone?:
           <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
             <p className="min-w-0 text-[14px] text-ink" style={{ fontWeight: 460 }}>
               {e.author_url ? <a href={e.author_url} target="_blank" rel="noopener noreferrer" className="hover:underline">{e.author_name}</a> : e.author_name}
-              {directed ? <span className="ml-2 rounded-pill bg-[#e8f5ee] px-2 py-0.5 text-[12px] text-[#1f7a4d]" style={{ fontWeight: 400 }}>{e.method === 'own_post' ? 'On your post' : 'Replied to you'}</span> : null}
+              {directed ? <span className="ml-2 rounded-pill bg-[#e8f5ee] px-2 py-0.5 text-[12px] text-[#1f7a4d]" style={{ fontWeight: 400 }}>{SIGNAL[e.signal || ''] || (e.method === 'own_post' ? 'On your post' : 'Replied to you')}</span> : null}
+              {!directed && e.lane === 'ask' ? <span className="ml-2 rounded-pill bg-butter px-2 py-0.5 text-[12px] text-ink" style={{ fontWeight: 400 }}>Asking for help</span> : null}
             </p>
             <span className="flex items-center gap-2 text-[12.5px] text-slate">
               {e.story ? <span className="rounded-pill bg-primary/8 px-2 py-0.5 text-ink-2">{e.story}</span> : null}
@@ -400,6 +444,7 @@ export function ReplyCard({ e, onDone, flat = false }: { e: Engagement; onDone?:
         className="mt-1.5 w-full rounded-md bg-lavender/60 p-3 text-[15px] leading-relaxed text-ink ring-1 ring-transparent focus:bg-surface focus:outline-none focus:ring-primary disabled:opacity-70"
       />
       {e.status === 'failed' || e.error ? <p className="mt-2 text-[13px] text-[#8a4b00]">{e.error || 'That didn’t go through.'}</p> : null}
+      {autoOf(pod.skills.find((s) => s.key === 'engage')) && e.status === 'proposed' && directed && (e.author_followers || 0) >= 1e4 ? <p className="mt-2 text-[13px] text-ink-2">A big account: this one waits for you, even with auto-post on.</p> : null}
       {working ? (
         <p className="mt-4 inline-flex items-center gap-2 text-[14px] text-ink-2"><span className="size-1.5 animate-pulse rounded-full bg-primary" />{e.status === 'posting' ? 'Posting it now…' : 'Approved. It goes out within 15 minutes, one at a time.'}</p>
       ) : (

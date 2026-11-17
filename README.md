@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-  Spool learns how you write and who matters to you, drafts your posts, finds the threads worth joining,<br />
-  and tells you who just warmed up. You approve. It does the rest, at a human pace.
+  Spool joins the right conversations every day, answers everyone who replies to you,<br />
+  and keeps a list of the people who want more. You approve, or switch on auto-post. Always at a human pace.
 </p>
 
 <p align="center">
@@ -95,16 +95,24 @@ Each job is a skill you switch on when you're ready. Start with one; add the res
 | Skill | What you get |
 | --- | --- |
 | **Post for me** | Posts in your voice on your rhythm: text, image, link, swipeable PDF carousels and claim images in your brand kit. Each one says why now. |
-| **Join conversations** | Fresh posts from your world and your topics, with a comment that adds something. Replies to you come first. |
+| **Join conversations** | About 30 comments a day on the right posts: people asking for what you do first, then people who replied to you before, your world and your topics. Each comment makes its own point. Everyone who replies to you gets an answer, and people who want to try what you do land on your **Interested** list with a message ready for your OK. Approve each one, or switch on **auto-post**. |
 | **Find my people** | A short list of people worth knowing, from who engages with you and who posts about your problem. |
 | **Send connection requests** | A short, personal note with each request, only to people you approved, inside safe weekly limits. |
 | **Follow up** | Messages that keep a real conversation going, drafted for you to approve. |
 | **Warm up my account** | Gentle, human-paced activity for a new or quiet account. |
 | **Optimize my profile** | Concrete edits to your headline, about and featured section, scored and explained. |
 
-Every Monday you get a short review: what worked, what didn't, and the plan for the week. Spool
-researches your topics every week, so your ideas come from what people are saying now, with dates
-and links.
+Every morning you get a one-minute summary: yesterday's comments, who replied, who wants more,
+what Spool learned from your edits, and what waits for you. Every Monday you get a short review:
+what worked, what didn't, and the plan for the week. Spool researches your topics every week, so
+your ideas come from what people are saying now, with dates and links.
+
+### It learns from you, and you can see what it learned
+
+Every comment keeps the draft Spool first wrote. When you edit one before approving it, skip a few
+of the same kind, or tell Spool how you like them, it writes a lesson: the rule, where it applies
+and why. It reads your lessons before every comment, and they beat its defaults. You'll find them
+under Personalization → How I comment, where you can change or forget any of them.
 
 ## Two ways in, both yours
 
@@ -126,11 +134,16 @@ sends you one message.
 
 ## Safe by design
 
-- **Nothing goes out under your name without your approval:** posts, comments, invitations, messages.
+- **Nothing goes out under your name without your approval:** posts, comments, invitations,
+  messages. The one exception is the one you choose: with **auto-post** on, Spool posts its own
+  comments and replies within your limits, each after a 10-minute hold so you can edit or skip it.
+  Messages and connection requests always wait for you, and so do replies to big accounts.
 - **Daily caps you can see and change,** shared across every skill, with ramps for new accounts.
-  Anything held back is postponed to tomorrow, never dropped.
-- **Stops at the first sign of trouble.** At a login wall, checkpoint, captcha or warning, everything
-  on LinkedIn stops and you get one message.
+  Comments: 30 a day by default, 40 at most, starting at 10 for a new teammate. At least 2 minutes
+  apart, never more than 8 in an hour, enforced in code. Anything held back is postponed, never
+  dropped.
+- **Stops at the first sign of trouble.** At a login wall, checkpoint, captcha or warning, or a
+  comment that doesn't show after posting, everything on LinkedIn stops and you get one message.
 - **Checked by code, not by trust.** Only an approval starts a post, and only one run ever handles
   it. The text is checked against what you approved before it goes out (placeholders and changed
   text are refused) and read back after; only a match counts as published. A mismatch is never
@@ -188,6 +201,18 @@ Every part, how to wire it by hand, and a smoke test are in [DESIGN.md](./DESIGN
 
 </details>
 
+### Your own clock, in your own copy
+
+Install it, or clone it, into your own org: it's yours alone. The bundle's timed jobs (the engage
+clock, replies, the morning summary, the sessions, the health check) ship switched off, as
+templates. The first time you finish onboarding, the app gives you your own switched-on copy of
+each, on your timezone. A clone that arrives with someone else's copies has those switched off, so
+you never run two clocks.
+
+The same works for a team sharing one pod: every table is private to its owner, and each member
+gets their own copies. Add them with the **POD_USER** role or higher, which lets them write their
+own rows and create their own schedules.
+
 ### Connect LinkedIn
 
 Enable the LinkedIn connector in your Lemma organisation before you install; the pod's LinkedIn
@@ -203,10 +228,15 @@ later from Personalization, Connections. Accounts never travel with this reposit
                                                      ▼
                                 Spool reads its results a day and three days later
 
- your engage runs (you pick the times) ──▶ fresh posts from your world and topics
+ your engage runs (you pick the times) ──▶ asks, warm people, your world, your topics
                                                      │
                                                      ▼
-                           comments drafted, ranked, waiting in your ten minutes
+              comments drafted, each checked ──▶ you approve (or auto-post) ──▶ posted, spaced,
+                                                                              checked under the post
+
+ every 2 hours ──▶ replies to you ──▶ react, answer in the thread, Interested list + a message to approve
+
+ every morning ──▶ daily summary ──▶ yesterday, who's interested, what I learned, what waits for you
 
  every two hours ──▶ health check ──▶ LinkedIn connection and browser fine?
                                                      │ no
@@ -222,10 +252,10 @@ One agent, `teammate`, does every job by loading the matching skill. Cheap funct
 | Layer | What ships |
 | --- | --- |
 | App | Onboarding, Home and your ten minutes, Recommended, Posts and the composer, Engage, People, Personalization, Skills, and Spool in the corner |
-| Agent | `teammate`, with 15 skills in `skills/` |
+| Agent | `teammate`, with 16 skills in `skills/` |
 | Tables | Profile, facts, topics, skills, recommendations, drafts, people, messages, engagements, activity, reviews and your world, all private to their owner |
 | Functions | Setup, LinkedIn lookup, the shared daily allowance, the browser lock (one job at a time in your LinkedIn browser), slot timing, API publishing, the publish guard (checks a post's text before and after it goes out), the nudge clock, the engage clock and the health check |
-| Automation | Publishing on approval, engage runs, the daily nudge, the health check, the Monday review, topic research |
+| Automation | Publishing on approval, engage runs and replies, posting (approved or auto), the daily summary, the daily nudge, the health check, the Monday review, topic research. Timed jobs run on each person's own clock |
 | Files | The carousel and claim-image design system and its renderer, and the script that posts in your browser only when the text is exactly what you approved |
 
 ## Make it yours
@@ -238,12 +268,31 @@ One agent, `teammate`, does every job by loading the matching skill. Cheap funct
 Good places to start:
 
 - `agents/teammate/instruction.md`: who Spool is, how each job is routed, the rules that never bend.
-- `skills/engage/SKILL.md`: how threads are found and how comments are written.
+- `skills/engage/SKILL.md`: the engagement playbook. What to engage with, how comments are written
+  and checked, pacing, stop rules, reply handling, and how edits become lessons.
+- `files/memory/AGENTS.md`: the short standing notes read into every run.
 - `skills/post-for-me/SKILL.md`: drafting, scheduling and publishing.
 - `skills/linkedin-browser/SKILL.md`: pacing, budgets and stop rules in the browser.
 - `files/templates/`: the carousel slide system and `render.py`, and `publish_post.py` (posting in the browser, checked).
 - `apps/teammate/source/`: the complete React app.
 - [DESIGN.md](./DESIGN.md): every part of the pod and its limits.
+
+## Smoke test
+
+After an install, as any member:
+
+1. Open the app and finish the onboarding. Then check that you have your own clock:
+   `lemma --pod <pod-id> schedules list` shows `engage-tick-u…`, `morning-u…` and the rest, active.
+2. Engage → switch it on. Ask Spool in the chat: "Draft a comment on this post: <a post link and
+   its text>". A card appears with the draft and why.
+3. Edit a word, then press **Approve**. The row goes to `approved`, and the next engage tick posts
+   it in your browser.
+4. Ask Spool "what did you learn from my edits?" (`[engage] learn`). A lesson appears under
+   Personalization → How I comment.
+5. Switch **auto-post** on and off on the Engage page; the card says what changes.
+
+To test without posting anything, leave Join conversations off in Skills after step 2: approved
+rows wait and nothing reaches LinkedIn.
 
 ## Verify your remix
 

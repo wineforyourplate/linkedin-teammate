@@ -10,6 +10,7 @@
 apps/*/source/node_modules/
 apps/*/source/dist/
 apps/*/source/dist.zip
+apps/*/dist.zip
 apps/*/source/*.tsbuildinfo
 __pycache__/
 *.py[cod]

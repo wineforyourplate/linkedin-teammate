@@ -1,7 +1,7 @@
 {
   "name": "session-am",
   "visibility": "POD",
-  "is_active": true,
+  "is_active": false,
   "filter_instruction": null,
   "filter_output_schema": null,
   "account_id": null,

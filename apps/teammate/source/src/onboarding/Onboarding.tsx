@@ -360,8 +360,8 @@ export function DestinationStep({ onNext }: { onNext: (patch: Patch) => void }) 
 
 const WORRIES = [
   { key: 'ai', label: 'Sounding like AI', emoji: '✍️', title: 'Your voice, not a bot’s', text: 'I learn from your own posts and every edit you make. No buzzwords, no walls of hashtags, no em dashes.' },
-  { key: 'restricted', label: 'My account getting restricted', emoji: '🛡️', title: 'Slow, capped, and I stop at a warning', text: 'A few comments and likes a day at most, minutes apart, only in your working hours. At the first warning I stop everything and tell you.' },
-  { key: 'bothering', label: 'Bothering people', emoji: '🙅', title: 'Nothing goes out without your yes', text: 'Every comment, message and invitation waits for your approval, word for word.' },
+  { key: 'restricted', label: 'My account getting restricted', emoji: '🛡️', title: 'Slow, capped, and I stop at a warning', text: 'About 30 comments a day at most, starting at 10, never two within 2 minutes, and I check each one after posting. At the first warning I stop everything and tell you.' },
+  { key: 'bothering', label: 'Bothering people', emoji: '🙅', title: 'Nothing goes out without your yes', text: 'Every comment, message and invitation waits for your approval, word for word, unless you switch on auto-post for comments. Messages always wait for you.' },
   { key: 'time', label: 'It eating my time', emoji: '⏱️', title: 'About 10 minutes a day', text: 'You approve in one go. The finding, drafting and tracking happen while you work.' },
 ] as const
 

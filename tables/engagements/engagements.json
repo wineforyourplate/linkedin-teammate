@@ -57,7 +57,8 @@
         "skipped",
         "failed"
       ],
-      "default": "proposed"
+      "default": "proposed",
+      "description": "proposed (waiting for them, or for auto-post) -> approved (by them) -> posting -> commented; or liked, skipped, failed."
     },
     {
       "name": "done_at",
@@ -90,7 +91,8 @@
     {
       "name": "posted_via",
       "type": "TEXT",
-      "max_length": 40
+      "max_length": 40,
+      "description": "teammate (they approved it), auto (auto-post was on; nobody approved this one), by_hand (they posted it themselves), assistant (imported from outside the pod)."
     },
     {
       "name": "experiment",
@@ -136,6 +138,36 @@
       "name": "author_photo",
       "type": "TEXT",
       "max_length": 800
+    },
+    {
+      "name": "first_draft",
+      "type": "TEXT",
+      "max_length": 2000,
+      "description": "The comment exactly as the teammate first drafted it. Never changed after that, so the person's edits (comment_draft vs first_draft) can be learned from."
+    },
+    {
+      "name": "signal",
+      "type": "ENUM",
+      "options": [
+        "hot",
+        "question",
+        "pushback",
+        "agree",
+        "ack",
+        "ignore"
+      ],
+      "description": "For replies to the person (method thread or own_post): what kind of reply it is. hot: wants to try it, asked for a DM or a link. question: asked something. pushback: disagreed. agree: agreed and added their own point. ack: a short thanks or emoji. ignore: bot test, spam, insult or a competitor's plug."
+    },
+    {
+      "name": "lane",
+      "type": "TEXT",
+      "max_length": 40,
+      "description": "Why it was picked: ask, warm, world, climbing, topic, peer, reply."
+    },
+    {
+      "name": "checked_visible",
+      "type": "BOOLEAN",
+      "description": "After posting, the comment was seen under the post on a reload. false stops all LinkedIn work."
     }
   ],
   "config": {}

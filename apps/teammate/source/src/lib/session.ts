@@ -81,7 +81,8 @@ export function useSessionQueues(question: string | null) {
   const postsDone = pod.drafts.filter((d) => (isToday(d.approved_at, tz) && d.status !== 'ready') || (d.status === 'killed' && isToday(d.updated_at, tz))).length
   const repliesAll = pod.engagements.filter(openReply).sort((a, b) => new Date(b.posted_at || b.created_at || 0).getTime() - new Date(a.posted_at || a.created_at || 0).getTime())
   const repliesDone = pod.engagements.filter((e) => (e.status === 'commented' || e.status === 'skipped' || e.status === 'approved' || e.status === 'posting') && isToday(e.done_at || e.updated_at, tz)).length
-  const peopleAll = pod.people.filter((p) => p.stage === 'found').sort((a, b) => (b.score || 0) - (a.score || 0))
+  // Outbound only: people on the Interested list (a `signal`) are handled by their DM or note, in People.
+  const peopleAll = pod.people.filter((p) => p.stage === 'found' && !p.signal).sort((a, b) => (b.score || 0) - (a.score || 0))
   const peopleDone = pod.people.filter((p) => (p.stage === 'approved' || p.stage === 'skipped') && isToday(p.updated_at, tz)).length
 
   const posts = capped<Draft>(postsAll, postsDone, cap('posts'), !!choices.rested.posts)

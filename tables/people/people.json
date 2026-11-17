@@ -42,7 +42,8 @@
         "search",
         "niche_post",
         "export",
-        "manual"
+        "manual",
+        "replied"
       ],
       "default": "search"
     },
@@ -82,6 +83,44 @@
       "name": "next_step",
       "type": "TEXT",
       "max_length": 300
+    },
+    {
+      "name": "signal",
+      "type": "ENUM",
+      "options": [
+        "hot",
+        "question",
+        "warm",
+        "big"
+      ],
+      "description": "Why they are on the Interested list. hot: said they'd try it or asked for a DM or link. question: asked a question. warm: replied to them 2+ times this week. big: 10K+ followers and replied."
+    },
+    {
+      "name": "said",
+      "type": "TEXT",
+      "max_length": 600,
+      "description": "Their own words, short, from the reply that put them on the Interested list."
+    },
+    {
+      "name": "thread_url",
+      "type": "TEXT",
+      "max_length": 600,
+      "description": "The post where they replied."
+    },
+    {
+      "name": "signal_at",
+      "type": "DATETIME",
+      "description": "When they last showed interest."
+    },
+    {
+      "name": "followers",
+      "type": "INTEGER"
+    },
+    {
+      "name": "degree",
+      "type": "TEXT",
+      "max_length": 8,
+      "description": "1st, 2nd or 3rd, from their profile: a DM needs 1st, otherwise a connection request with a note."
     }
   ],
   "config": {}

@@ -1,6 +1,6 @@
 {
   "name": "engage_clock",
-  "description": "Every 15 minutes: post the comments they approved (one queue), start one of their scheduled engage runs when it's due, or do nothing. Marks a run before saying yes, so it never starts twice.",
+  "description": "Every 15 minutes: post the comments they approved, or with auto-post on the teammate's own drafts (never more than 8 an hour), start one of their scheduled finding runs or the replies job when it's due, or do nothing. Marks a run before saying yes, so it never starts twice.",
   "type": "API",
   "visibility": "POD",
   "code": {
@@ -37,6 +37,14 @@
       {
         "resource_type": "datastore_table",
         "resource_name": "drafts",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read"
+        ]
+      },
+      {
+        "resource_type": "datastore_table",
+        "resource_name": "activity",
         "permission_ids": [
           "datastore.table.read",
           "datastore.record.read"
